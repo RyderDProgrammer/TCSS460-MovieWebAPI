@@ -2,7 +2,7 @@
 
 **Project Name:** TCSS460-MovieWebAPI\
 **Prepared For:** Client Stakeholders\
-**Prepared By:** Group 4 — TCSS 460\
+**Prepared By:** Group 4 (Ryder DeBack, Faisal Nur, Kevin Nam Hoang, Mutahar Wafayee) — TCSS 460\
 **Date:** October 11, 2025
 
 ------------------------------------------------------------------------
