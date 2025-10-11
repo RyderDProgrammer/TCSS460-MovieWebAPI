@@ -1,0 +1,453 @@
+openapi: 3.0.3
+info:
+  title: Movie Database API
+  version: 1.0.0
+  description: |
+    Movie database API with 9,326 movies. Requires API key for all routes.
+    Get API key from Authentication service.
+
+servers:
+  - url: https://movie-api.moviedb.com
+    description: Production server
+
+security:
+  - ApiKeyAuth: []
+
+tags:
+  - name: Movies
+
+paths:
+  /movies:
+    get:
+      tags: [Movies]
+      summary: Query movies (with pagination)
+      description: Search and filter movies. Returns 20 results per page.
+      parameters:
+        - name: title
+          in: query
+          schema: { type: string }
+          description: Search by title (partial match)
+        - name: genre
+          in: query
+          schema: { type: string }
+        - name: year
+          in: query
+          schema: { type: integer }
+        - name: yearFrom
+          in: query
+          schema: { type: integer }
+        - name: yearTo
+          in: query
+          schema: { type: integer }
+        - name: actor
+          in: query
+          schema: { type: string }
+        - name: director
+          in: query
+          schema: { type: string }
+        - name: studio
+          in: query
+          schema: { type: string }
+        - name: rating
+          in: query
+          schema: { type: string, enum: [G, PG, PG-13, R, NC-17] }
+        - name: runtimeMin
+          in: query
+          schema: { type: integer }
+        - name: runtimeMax
+          in: query
+          schema: { type: integer }
+        - name: budgetMin
+          in: query
+          schema: { type: integer }
+        - name: budgetMax
+          in: query
+          schema: { type: integer }
+        - name: revenueMin
+          in: query
+          schema: { type: integer }
+        - name: revenueMax
+          in: query
+          schema: { type: integer }
+        - name: sortBy
+          in: query
+          schema: { type: string, enum: [title, release_date, revenue, runtime], default: release_date }
+        - name: sortOrder
+          in: query
+          schema: { type: string, enum: [asc, desc], default: desc }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1, minimum: 1 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20, minimum: 1, maximum: 100 }
+      responses:
+        '200':
+          description: Movies retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      movies:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/MovieSummary'
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      tags: [Movies]
+      summary: Add movie to dataset
+      description: Add new movie. Admin/Content Manager only.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MovieInput'
+      responses:
+        '201':
+          description: Movie created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  message: { type: string }
+                  data:
+                    $ref: '#/components/schemas/Movie'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /movies/{movieId}:
+    get:
+      tags: [Movies]
+      summary: Get movie by ID
+      parameters:
+        - name: movieId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Movie details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    $ref: '#/components/schemas/Movie'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Movies]
+      summary: Update movie
+      description: Edit/update movie information. Admin/Content Manager only.
+      parameters:
+        - name: movieId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MovieInput'
+      responses:
+        '200':
+          description: Movie updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  message: { type: string }
+                  data:
+                    $ref: '#/components/schemas/Movie'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Movies]
+      summary: Remove movie from dataset
+      description: Delete movie entry. Admin only.
+      parameters:
+        - name: movieId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Movie deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  message: { type: string }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /genres:
+    get:
+      tags: [Movies]
+      summary: Get all genres
+      responses:
+        '200':
+          description: List of genres
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Genre'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /studios:
+    get:
+      tags: [Movies]
+      summary: Get all studios
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
+      responses:
+        '200':
+          description: List of studios
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      studios:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Studio'
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /people/{personId}:
+    get:
+      tags: [Movies]
+      summary: Get person details
+      parameters:
+        - name: personId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Person details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    $ref: '#/components/schemas/Person'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  schemas:
+    Movie:
+      type: object
+      properties:
+        movieId: { type: integer }
+        title: { type: string }
+        originalTitle: { type: string }
+        releaseDate: { type: string, format: date }
+        runtime: { type: integer }
+        overview: { type: string }
+        budget: { type: integer }
+        revenue: { type: integer }
+        mpaRating: { type: string }
+        collection: { type: string }
+        posterUrl: { type: string }
+        backdropUrl: { type: string }
+        genres:
+          type: array
+          items:
+            $ref: '#/components/schemas/Genre'
+        studios:
+          type: array
+          items:
+            $ref: '#/components/schemas/Studio'
+        cast:
+          type: array
+          items:
+            $ref: '#/components/schemas/CastMember'
+        directors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Person'
+        producers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Person'
+
+    MovieSummary:
+      type: object
+      properties:
+        movieId: { type: integer }
+        title: { type: string }
+        releaseDate: { type: string, format: date }
+        runtime: { type: integer }
+        posterUrl: { type: string }
+        genres: { type: array, items: { type: string } }
+
+    MovieInput:
+      type: object
+      required: [title, originalTitle, releaseDate, runtime]
+      properties:
+        title: { type: string }
+        originalTitle: { type: string }
+        releaseDate: { type: string, format: date }
+        runtime: { type: integer }
+        overview: { type: string }
+        budget: { type: integer }
+        revenue: { type: integer }
+        mpaRating: { type: string }
+        collection: { type: string }
+        posterUrl: { type: string }
+        backdropUrl: { type: string }
+        genreIds: { type: array, items: { type: integer } }
+        studioIds: { type: array, items: { type: integer } }
+        cast:
+          type: array
+          items:
+            type: object
+            properties:
+              personId: { type: integer }
+              characterName: { type: string }
+              castOrder: { type: integer }
+        directorIds: { type: array, items: { type: integer } }
+        producerIds: { type: array, items: { type: integer } }
+
+    Genre:
+      type: object
+      properties:
+        genreId: { type: integer }
+        name: { type: string }
+
+    Studio:
+      type: object
+      properties:
+        studioId: { type: integer }
+        name: { type: string }
+        country: { type: string }
+        logoUrl: { type: string }
+
+    Person:
+      type: object
+      properties:
+        personId: { type: integer }
+        name: { type: string }
+        profileUrl: { type: string }
+
+    CastMember:
+      type: object
+      properties:
+        personId: { type: integer }
+        name: { type: string }
+        characterName: { type: string }
+        castOrder: { type: integer }
+        profileUrl: { type: string }
+
+    Pagination:
+      type: object
+      properties:
+        currentPage: { type: integer }
+        totalPages: { type: integer }
+        totalResults: { type: integer }
+        resultsPerPage: { type: integer }
+
+    Error:
+      type: object
+      properties:
+        success: { type: boolean, example: false }
+        message: { type: string }
+
+  responses:
+    BadRequest:
+      description: Bad request - invalid input
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Unauthorized - missing or invalid API key
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Forbidden:
+      description: Forbidden - insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
