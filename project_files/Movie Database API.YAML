@@ -1,301 +1,18 @@
 openapi: 3.0.3
 info:
   title: Movie Database API
-  version: 1.0.0
-  description: |
-    Movie database API with 9,326 movies. Requires API key for all routes.
-    Get API key from Authentication service.
-
+  description: >
+    REST API for the Movies dataset. Routes are protected by an API key header `X-API-Key`.
+    This file documents Movies, Genres, Studios, People and the join tables (cast, directors, producers, genres, studios).
+  version: "1.0.0"
 servers:
-  - url: https://movie-api.moviedb.com
-    description: Production server
+  - url: https://api.example.com/v1
+    description: Production server (change for your deployment)
+  - url: http://localhost:3000/v1
+    description: Local development
 
 security:
   - ApiKeyAuth: []
-
-tags:
-  - name: Movies
-
-paths:
-  /movies:
-    get:
-      tags: [Movies]
-      summary: Query movies (with pagination)
-      description: Search and filter movies. Returns 20 results per page.
-      parameters:
-        - name: title
-          in: query
-          schema: { type: string }
-          description: Search by title (partial match)
-        - name: genre
-          in: query
-          schema: { type: string }
-        - name: year
-          in: query
-          schema: { type: integer }
-        - name: yearFrom
-          in: query
-          schema: { type: integer }
-        - name: yearTo
-          in: query
-          schema: { type: integer }
-        - name: actor
-          in: query
-          schema: { type: string }
-        - name: director
-          in: query
-          schema: { type: string }
-        - name: studio
-          in: query
-          schema: { type: string }
-        - name: rating
-          in: query
-          schema: { type: string, enum: [G, PG, PG-13, R, NC-17] }
-        - name: runtimeMin
-          in: query
-          schema: { type: integer }
-        - name: runtimeMax
-          in: query
-          schema: { type: integer }
-        - name: budgetMin
-          in: query
-          schema: { type: integer }
-        - name: budgetMax
-          in: query
-          schema: { type: integer }
-        - name: revenueMin
-          in: query
-          schema: { type: integer }
-        - name: revenueMax
-          in: query
-          schema: { type: integer }
-        - name: sortBy
-          in: query
-          schema: { type: string, enum: [title, release_date, revenue, runtime], default: release_date }
-        - name: sortOrder
-          in: query
-          schema: { type: string, enum: [asc, desc], default: desc }
-        - name: page
-          in: query
-          schema: { type: integer, default: 1, minimum: 1 }
-        - name: limit
-          in: query
-          schema: { type: integer, default: 20, minimum: 1, maximum: 100 }
-      responses:
-        '200':
-          description: Movies retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success: { type: boolean }
-                  data:
-                    type: object
-                    properties:
-                      movies:
-                        type: array
-                        items:
-                          $ref: '#/components/schemas/MovieSummary'
-                      pagination:
-                        $ref: '#/components/schemas/Pagination'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
-    post:
-      tags: [Movies]
-      summary: Add movie to dataset
-      description: Add new movie. Admin/Content Manager only.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MovieInput'
-      responses:
-        '201':
-          description: Movie created
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success: { type: boolean }
-                  message: { type: string }
-                  data:
-                    $ref: '#/components/schemas/Movie'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-
-  /movies/{movieId}:
-    get:
-      tags: [Movies]
-      summary: Get movie by ID
-      parameters:
-        - name: movieId
-          in: path
-          required: true
-          schema: { type: integer }
-      responses:
-        '200':
-          description: Movie details
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success: { type: boolean }
-                  data:
-                    $ref: '#/components/schemas/Movie'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-    put:
-      tags: [Movies]
-      summary: Update movie
-      description: Edit/update movie information. Admin/Content Manager only.
-      parameters:
-        - name: movieId
-          in: path
-          required: true
-          schema: { type: integer }
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MovieInput'
-      responses:
-        '200':
-          description: Movie updated
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success: { type: boolean }
-                  message: { type: string }
-                  data:
-                    $ref: '#/components/schemas/Movie'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-    delete:
-      tags: [Movies]
-      summary: Remove movie from dataset
-      description: Delete movie entry. Admin only.
-      parameters:
-        - name: movieId
-          in: path
-          required: true
-          schema: { type: integer }
-      responses:
-        '200':
-          description: Movie deleted
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success: { type: boolean }
-                  message: { type: string }
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-  /genres:
-    get:
-      tags: [Movies]
-      summary: Get all genres
-      responses:
-        '200':
-          description: List of genres
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success: { type: boolean }
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Genre'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
-  /studios:
-    get:
-      tags: [Movies]
-      summary: Get all studios
-      parameters:
-        - name: page
-          in: query
-          schema: { type: integer, default: 1 }
-        - name: limit
-          in: query
-          schema: { type: integer, default: 20 }
-      responses:
-        '200':
-          description: List of studios
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success: { type: boolean }
-                  data:
-                    type: object
-                    properties:
-                      studios:
-                        type: array
-                        items:
-                          $ref: '#/components/schemas/Studio'
-                      pagination:
-                        $ref: '#/components/schemas/Pagination'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
-  /people/{personId}:
-    get:
-      tags: [Movies]
-      summary: Get person details
-      parameters:
-        - name: personId
-          in: path
-          required: true
-          schema: { type: integer }
-      responses:
-        '200':
-          description: Person details
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success: { type: boolean }
-                  data:
-                    $ref: '#/components/schemas/Person'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
 
 components:
   securitySchemes:
@@ -305,149 +22,942 @@ components:
       name: X-API-Key
 
   schemas:
+
+    # ----- Primary Entities -----
     Movie:
       type: object
+      required:
+        - title
       properties:
-        movieId: { type: integer }
-        title: { type: string }
-        originalTitle: { type: string }
-        releaseDate: { type: string, format: date }
-        runtime: { type: integer }
-        overview: { type: string }
-        budget: { type: integer }
-        revenue: { type: integer }
-        mpaRating: { type: string }
-        collection: { type: string }
-        posterUrl: { type: string }
-        backdropUrl: { type: string }
-        genres:
-          type: array
-          items:
-            $ref: '#/components/schemas/Genre'
-        studios:
-          type: array
-          items:
-            $ref: '#/components/schemas/Studio'
-        cast:
-          type: array
-          items:
-            $ref: '#/components/schemas/CastMember'
-        directors:
-          type: array
-          items:
-            $ref: '#/components/schemas/Person'
-        producers:
-          type: array
-          items:
-            $ref: '#/components/schemas/Person'
-
-    MovieSummary:
-      type: object
-      properties:
-        movieId: { type: integer }
-        title: { type: string }
-        releaseDate: { type: string, format: date }
-        runtime: { type: integer }
-        posterUrl: { type: string }
-        genres: { type: array, items: { type: string } }
-
-    MovieInput:
-      type: object
-      required: [title, originalTitle, releaseDate, runtime]
-      properties:
-        title: { type: string }
-        originalTitle: { type: string }
-        releaseDate: { type: string, format: date }
-        runtime: { type: integer }
-        overview: { type: string }
-        budget: { type: integer }
-        revenue: { type: integer }
-        mpaRating: { type: string }
-        collection: { type: string }
-        posterUrl: { type: string }
-        backdropUrl: { type: string }
-        genreIds: { type: array, items: { type: integer } }
-        studioIds: { type: array, items: { type: integer } }
-        cast:
-          type: array
-          items:
-            type: object
-            properties:
-              personId: { type: integer }
-              characterName: { type: string }
-              castOrder: { type: integer }
-        directorIds: { type: array, items: { type: integer } }
-        producerIds: { type: array, items: { type: integer } }
+        movie_id:
+          type: integer
+          example: 123
+        title:
+          type: string
+          example: "Inception"
+        original_title:
+          type: string
+          example: "Inception"
+        release_date:
+          type: string
+          format: date
+          example: "2010-07-16"
+        runtime_min:
+          type: integer
+          example: 148
+        overview:
+          type: string
+          example: "A thief who steals corporate secrets..."
+        budget:
+          type: integer
+          format: int64
+          description: budget in cents or smallest unit (or in whole dollars depending on implementation)
+          example: 160000000
+        revenue:
+          type: integer
+          format: int64
+          example: 825532764
+        mpa_rating:
+          type: string
+          example: "PG-13"
+        collection:
+          type: string
+          nullable: true
+          example: "The Inception Collection"
+        poster_url:
+          type: string
+          format: uri
+          example: "https://image.tmdb.org/t/p/w500/xxx.jpg"
+        backdrop_url:
+          type: string
+          format: uri
+          example: "https://image.tmdb.org/t/p/w1280/yyy.jpg"
 
     Genre:
       type: object
       properties:
-        genreId: { type: integer }
-        name: { type: string }
+        genre_id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Action"
 
     Studio:
       type: object
       properties:
-        studioId: { type: integer }
-        name: { type: string }
-        country: { type: string }
-        logoUrl: { type: string }
+        studio_id:
+          type: integer
+          example: 10
+        name:
+          type: string
+          example: "Warner Bros."
+        country:
+          type: string
+          example: "USA"
+        logo_url:
+          type: string
+          format: uri
+          example: "https://studio.example.com/logos/warner.png"
 
     Person:
       type: object
       properties:
-        personId: { type: integer }
-        name: { type: string }
-        profileUrl: { type: string }
+        person_id:
+          type: integer
+          example: 501
+        name:
+          type: string
+          example: "Christopher Nolan"
+        profile_url:
+          type: string
+          format: uri
+          example: "https://image.tmdb.org/t/p/w300/zzz.jpg"
 
-    CastMember:
+    # ----- Join / Relationship Entities -----
+    Movie_Genre:
       type: object
+      required:
+        - movie_id
+        - genre_id
       properties:
-        personId: { type: integer }
-        name: { type: string }
-        characterName: { type: string }
-        castOrder: { type: integer }
-        profileUrl: { type: string }
+        movie_genre_id:
+          type: integer
+          example: 1001
+        movie_id:
+          type: integer
+          example: 123
+        genre_id:
+          type: integer
+          example: 1
 
-    Pagination:
+    Movie_Cast:
       type: object
+      required:
+        - movie_id
+        - person_id
       properties:
-        currentPage: { type: integer }
-        totalPages: { type: integer }
-        totalResults: { type: integer }
-        resultsPerPage: { type: integer }
+        uniqueId:
+          type: integer
+          example: 3001
+          description: Primary key for the movie_cast row
+        movie_id:
+          type: integer
+          example: 123
+        person_id:
+          type: integer
+          example: 900
+        character_name:
+          type: string
+          example: "Dom Cobb"
+        cast_order:
+          type: integer
+          example: 1
 
-    Error:
+    Movie_Director:
       type: object
+      required:
+        - movie_id
+        - person_id
       properties:
-        success: { type: boolean, example: false }
-        message: { type: string }
+        movie_director_id:
+          type: integer
+          example: 4001
+        movie_id:
+          type: integer
+          example: 123
+        person_id:
+          type: integer
+          example: 501
+
+    Movie_Producer:
+      type: object
+      required:
+        - movie_id
+        - person_id
+      properties:
+        movie_producer_id:
+          type: integer
+          example: 5001
+        movie_id:
+          type: integer
+          example: 123
+        person_id:
+          type: integer
+          example: 602
+
+    Movie_Studios:
+      type: object
+      required:
+        - movie_id
+        - studio_id
+      properties:
+        movie_studios_id:
+          type: integer
+          example: 6001
+        movie_id:
+          type: integer
+          example: 123
+        studio_id:
+          type: integer
+          example: 10
 
   responses:
-    BadRequest:
-      description: Bad request - invalid input
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-
-    Unauthorized:
-      description: Unauthorized - missing or invalid API key
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-
-    Forbidden:
-      description: Forbidden - insufficient permissions
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-
     NotFound:
-      description: Not found
+      description: Resource not found
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Not found"
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Invalid input"
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Internal server error"
+
+paths:
+
+  ### ----------------------------
+  ### Movies
+  ### ----------------------------
+
+  /movies:
+    get:
+      summary: List movies (paginated)
+      description: Returns a paginated list of movies. Query params: page, per_page, q (search).
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 25
+          description: Items per page
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Free text search on movie title
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: A list of movies
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: integer
+                    example: 1
+                  per_page:
+                    type: integer
+                    example: 25
+                  total:
+                    type: integer
+                    example: 2345
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Movie'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+    post:
+      summary: Create a movie
+      description: Create a movie record.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Movie'
+      responses:
+        '201':
+          description: Movie created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /movies/{movie_id}:
+    parameters:
+      - in: path
+        name: movie_id
+        required: true
+        schema:
+          type: integer
+        description: The ID of the movie
+    get:
+      summary: Get movie by ID
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Movie found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+    put:
+      summary: Update a movie by ID
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Movie'
+      responses:
+        '200':
+          description: Movie updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+    delete:
+      summary: Delete a movie
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '204':
+          description: Movie deleted (no content)
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  ### ----------------------------
+  ### Genres
+  ### ----------------------------
+
+  /genres:
+    get:
+      summary: List genres
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: List of genres
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Genre'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+    post:
+      summary: Create a genre
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Genre'
+      responses:
+        '201':
+          description: Genre created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Genre'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /genres/{genre_id}:
+    parameters:
+      - in: path
+        name: genre_id
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get genre by ID
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Genre object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Genre'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: Update genre
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Genre'
+      responses:
+        '200':
+          description: Genre updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Genre'
+    delete:
+      summary: Delete genre
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '204':
+          description: Genre deleted
+
+  ### ----------------------------
+  ### Studios
+  ### ----------------------------
+
+  /studios:
+    get:
+      summary: List studios
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: List of studios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Studio'
+    post:
+      summary: Create studio
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Studio'
+      responses:
+        '201':
+          description: Studio created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Studio'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /studios/{studio_id}:
+    parameters:
+      - in: path
+        name: studio_id
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get studio by ID
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Studio
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Studio'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: Update studio
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Studio'
+      responses:
+        '200':
+          description: Studio updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Studio'
+    delete:
+      summary: Delete studio
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '204':
+          description: Studio deleted
+
+  ### ----------------------------
+  ### People
+  ### ----------------------------
+
+  /people:
+    get:
+      summary: List people
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: List of people
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Person'
+    post:
+      summary: Create person
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Person'
+      responses:
+        '201':
+          description: Person created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+
+  /people/{person_id}:
+    parameters:
+      - in: path
+        name: person_id
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get person by ID
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Person
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: Update person
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Person'
+      responses:
+        '200':
+          description: Person updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+    delete:
+      summary: Delete person
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '204':
+          description: Person deleted
+
+  ### ----------------------------
+  ### Movie_Genres (join)
+  ### ----------------------------
+
+  /movie_genres:
+    get:
+      summary: List movie-genre associations
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: List of associations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movie_Genre'
+    post:
+      summary: Associate a movie with a genre
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Movie_Genre'
+      responses:
+        '201':
+          description: Association created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie_Genre'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /movie_genres/{movie_genre_id}:
+    parameters:
+      - in: path
+        name: movie_genre_id
+        required: true
+        schema:
+          type: integer
+    delete:
+      summary: Remove movie-genre association
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '204':
+          description: Association removed
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  ### ----------------------------
+  ### Movie_Cast
+  ### ----------------------------
+
+  /movie_cast:
+    get:
+      summary: List cast entries
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: List of cast rows
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movie_Cast'
+    post:
+      summary: Add a cast member to a movie
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Movie_Cast'
+      responses:
+        '201':
+          description: Cast row created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie_Cast'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /movie_cast/{uniqueId}:
+    parameters:
+      - in: path
+        name: uniqueId
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get cast row by uniqueId
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Cast row
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie_Cast'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: Update cast row
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Movie_Cast'
+      responses:
+        '200':
+          description: Cast row updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie_Cast'
+    delete:
+      summary: Remove cast row
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '204':
+          description: Cast row deleted
+
+  ### ----------------------------
+  ### Movie_Directors
+  ### ----------------------------
+
+  /movie_directors:
+    get:
+      summary: List movie-director rows
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: List of directors associations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movie_Director'
+    post:
+      summary: Add a director to a movie
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Movie_Director'
+      responses:
+        '201':
+          description: Director row created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie_Director'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /movie_directors/{movie_director_id}:
+    parameters:
+      - in: path
+        name: movie_director_id
+        required: true
+        schema:
+          type: integer
+    delete:
+      summary: Remove movie director association
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '204':
+          description: Director association removed
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  ### ----------------------------
+  ### Movie_Producers
+  ### ----------------------------
+
+  /movie_producers:
+    get:
+      summary: List movie-producer rows
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: List of producers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movie_Producer'
+    post:
+      summary: Add a producer to a movie
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Movie_Producer'
+      responses:
+        '201':
+          description: Producer row created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie_Producer'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /movie_producers/{movie_producer_id}:
+    parameters:
+      - in: path
+        name: movie_producer_id
+        required: true
+        schema:
+          type: integer
+    delete:
+      summary: Remove producer association
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '204':
+          description: Producer association removed
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  ### ----------------------------
+  ### Movie_Studios (join)
+  ### ----------------------------
+
+  /movie_studios:
+    get:
+      summary: List movie-studio associations
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: List of movie-studios rows
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movie_Studios'
+    post:
+      summary: Associate a studio with a movie
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Movie_Studios'
+      responses:
+        '201':
+          description: Association created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie_Studios'
+
+  /movie_studios/{movie_studios_id}:
+    parameters:
+      - in: path
+        name: movie_studios_id
+        required: true
+        schema:
+          type: integer
+    delete:
+      summary: Remove movie-studio association
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '204':
+          description: Association removed
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  ### ----------------------------
+  ### Utility / health / docs (optional)
+  ### ----------------------------
+
+  /health:
+    get:
+      summary: API health check
+      description: Basic health endpoint (no API key required)
+      security: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok"
+
+tags:
+  - name: movies
+    description: Movie resource operations
+  - name: genres
+    description: Genre resource operations
+  - name: studios
+    description: Studio resource operations
+  - name: people
+    description: Person resource operations
+  - name: relationships
+    description: Join table operations (cast, producers, directors, genres, studios)
