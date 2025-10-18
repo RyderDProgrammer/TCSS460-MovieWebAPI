@@ -49,6 +49,47 @@ app.get('/movies', (req, res) => {
   });
 });
 
+// GET /moviesbyyear?year=YYYY - return all movies released in the given year
+app.get('/moviesbyyear', (req, res) => {
+  const year = req.query.year;
+  if (!year || !/^[0-9]{4}$/.test(year)) {
+    return res.status(400).json({ error: 'Please provide a valid year as ?year=YYYY' });
+  }
+
+  // SQLite stores release_date as DATE; we query by the year prefix
+  // First try strftime (works when dates are ISO-like). Many dates in the dataset are like M/D/YY
+  const sqlStrftime = `
+    SELECT movie_id, title, release_date, runtime_in_minutes, mpa_rating
+    FROM Movies
+    WHERE strftime('%Y', release_date) = ?
+    ORDER BY release_date DESC
+  `;
+
+  db.all(sqlStrftime, [year], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (rows && rows.length > 0) {
+      return res.json({ year, count: rows.length, movies: rows });
+    }
+
+    // Fallback: many release_date values are stored as M/D/YY (e.g. 8/4/25). Try matching the two-digit year or occurrences of the full year.
+    const yy = year.slice(-2);
+    const likeTwoDigit = `%/${yy}`;      // matches '8/4/19' etc
+    const likeFull = `%${year}%`;        // matches any '2019' forms if present
+
+    const sqlLike = `
+      SELECT movie_id, title, release_date, runtime_in_minutes, mpa_rating
+      FROM Movies
+      WHERE release_date LIKE ? OR release_date LIKE ?
+      ORDER BY release_date DESC
+    `;
+
+    db.all(sqlLike, [likeTwoDigit, likeFull], (e2, rows2) => {
+      if (e2) return res.status(500).json({ error: e2.message });
+      return res.json({ year, count: rows2.length, movies: rows2 });
+    });
+  });
+});
+
 // GET /movies/:id - detailed movie with genres and cast (limited)
 app.get('/movies/:id', (req, res) => {
   const id = parseInt(req.params.id, 10);
