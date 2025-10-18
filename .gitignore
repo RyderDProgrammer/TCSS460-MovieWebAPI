@@ -1,2 +1,6 @@
 .idea/
 \.github/
+node_modules/
+npm-debug.log*
+SQL Scripts/*.db-wal
+SQL Scripts/*.db-shm
