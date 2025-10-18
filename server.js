@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const sqlite3 = require('sqlite3').verbose();
+const fs = require('fs');
 const path = require('path');
 
 const app = express();
@@ -9,9 +10,18 @@ app.use(express.json());
 
 // Open the SQLite database in the project folder
 const DB_PATH = path.join(__dirname, 'SQL Scripts', 'movies.db');
+
+// If the DB file is missing at startup, fail fast so Render shows an error in logs
+if (!fs.existsSync(DB_PATH)) {
+  console.error(`Database file not found at ${DB_PATH}. If you intended to include the DB in the repo, commit it or run the import on startup.`);
+  // exit with non-zero so the hosting platform marks the deploy as failed and shows logs
+  process.exit(1);
+}
+
 const db = new sqlite3.Database(DB_PATH, sqlite3.OPEN_READONLY, (err) => {
   if (err) {
     console.error('Failed to open database:', err.message);
+    process.exit(1);
   } else {
     console.log('Connected to SQLite DB at', DB_PATH);
   }
@@ -142,8 +152,9 @@ process.on('SIGINT', closeDbAndExit);
 
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+const HOST = process.env.HOST || '0.0.0.0';
+app.listen(PORT, HOST, () => {
+  console.log(`Server listening on ${HOST}:${PORT}`);
 });
 
 module.exports = app;
