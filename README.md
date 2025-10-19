@@ -128,4 +128,52 @@ By completing this project, students will:
 
 ---
 
+# 🚀 **Beta Sprint**
+
+## 🌐 Hosted Web API
+**Live URL:** [https://tcss460-moviewebapi.onrender.com](https://tcss460-moviewebapi.onrender.com)  
+Hosted on **Render**, auto-deploys on pushes to the `main` branch.
+
+---
+
+## 🧩 Beta Sprint Contribution
+
+| **Team Member** | **Contribution** |
+|------------------|------------------|
+| **Ryder DeBack** | Redesigned the database for efficiency, merging multiple scripts into one SQL insert process. Updated ER diagram and optimized import speed from 13 hours to under 3 minutes. |
+| **Kevin Nam Hoang** | Deployed and hosted the working API on Render. Implemented and verified the **`/moviesbyyear?year=YYYY`** route and ensured it queries from the external cloud-hosted database. |
+| **Faisal Nur** | Developed the Postman collection to test all implemented routes (`/movies`, `/movies/:id`, `/moviesbyyear`, `/health`) and exported it to `/testing/postman/postman.json`. |
+| **Mutahar Wafayee** | Completed the API documentation (`/api-docs`) for hosted deployment, added the `/moviesbyyear` route details in Swagger YAML, and updated this README file for the Beta Sprint submission. |
+
+---
+
+## 🗓️ Beta Sprint Meetings
+
+- **Oct 14 – Initial Planning Meeting (Discord):**  
+  Ryder and Kevin discussed new database design and division of responsibilities.  
+  Tasks were assigned: Ryder (Database), Kevin (Hosting), Faisal (Testing), Mutahar (Documentation).
+  
+- **Oct 15–16 – Progress Updates (Discord):**  
+  Discussed database import improvements, Render deployment status, and route testing plan.  
+  Ryder confirmed DB optimization; Kevin confirmed `/moviesbyyear` worked on Render.
+
+- **Oct 17 – Final Review (Discord & GitHub):**  
+  Faisal completed testing and shared results; Mutahar finalized `/api-docs` and README updates.
+
+**Primary Communication:** Discord text and file-sharing.  
+**Secondary Tools:** GitHub commits, comments, and Render build logs.
+
+---
+
+## 💬 Beta Sprint Comments
+
+- Import performance increased drastically after redesign (3 minutes vs. 13 hours).  
+- Render free tier occasionally returns “502 Bad Gateway” after inactivity, which resolves after waking.  
+- The `/moviesbyyear` route is fully implemented and tested, returning correct JSON data for year queries.  
+- Postman test collection confirms all working endpoints.  
+- Swagger `/api-docs` reflects accurate routes and marks unimplemented ones as “Not Implemented Yet.”  
+- Future sprints will focus on completing relationship tables and CRUD routes for genres, studios, and people.
+
+---
+
 **Built with 🎬, ☁️, and 💻 by Group 4 – Movies Dataset Web API Team**  

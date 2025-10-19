@@ -1,9 +1,20 @@
 openapi: 3.0.3
 info:
   title: Movie Database API
-  description: >
+  version: "1.0.0"
+  description: |
     REST API for the Movies dataset. Routes are protected by an API key header `X-API-Key`.
-    This file documents Movies, Genres, Studios, People and the join tables (cast, directors, producers, genres, studios).
+    This file documents Movies, Genres, Studios, People, and the join tables (cast, directors, producers, genres, studios).
+
+    **Published Web API (Beta Version)**  
+    Hosted at: [https://tcss460-moviewebapi.onrender.com](https://tcss460-moviewebapi.onrender.com)
+
+    ### Updates for Beta Sprint (Oct 2025)
+    - Added `GET /moviesbyyear?year=YYYY` route that queries the external (cloud-hosted) SQLite database.
+    - Implemented routes: `/health`, `/movies`, `/movies/:id`, and `/moviesbyyear`.
+    - Postman tests included in `/testing/postman/postman.json` (covers implemented routes).
+    - Other routes are part of the final API design and are marked as **Not Implemented Yet**.
+    - Documentation hosted at `/api-docs` for class-wide consistency.
   version: "1.0.0"
 servers:
   - url: https://api.example.com/v1
@@ -241,6 +252,7 @@ paths:
   ### ----------------------------
 
   /movies:
+
     get:
       summary: List movies (paginated)
       description: Returns a paginated list of movies. Query params: page, per_page, q (search).
@@ -311,6 +323,44 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Movie'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+
+  /moviesbyyear:
+    get:
+      summary: Get movies released in a given year (implemented)
+      description: >
+        Returns all movies released in the specified year.
+        Example usage: `/moviesbyyear?year=2019`
+      parameters:
+        - in: query
+          name: year
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9]{4}$'
+          description: Year of release (YYYY format)
+      responses:
+        '200':
+          description: List of movies released in the specified year
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  year:
+                    type: string
+                    example: "2019"
+                  count:
+                    type: integer
+                    example: 250
+                  movies:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Movie'
         '400':
           $ref: '#/components/responses/BadRequest'
         '500':
