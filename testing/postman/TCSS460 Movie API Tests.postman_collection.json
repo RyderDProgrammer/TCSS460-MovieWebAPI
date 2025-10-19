@@ -1,0 +1,247 @@
+{
+	"info": {
+		"_postman_id": "279604b4-055d-4226-9249-d6535870ce66",
+		"name": "TCSS460 Movie API Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31403545"
+	},
+	"item": [
+		{
+			"name": "Get Movies by Year - 2025",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has correct structure\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('year');",
+							"    pm.expect(jsonData).to.have.property('count');",
+							"    pm.expect(jsonData).to.have.property('movies');",
+							"});",
+							"",
+							"pm.test(\"Movies is an array\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.movies).to.be.an('array');",
+							"});",
+							"",
+							"pm.test(\"Response contains movies\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.movies.length).to.be.above(0);",
+							"});",
+							"",
+							"pm.test(\"Year matches requested year\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.year).to.eql(\"2025\");",
+							"});",
+							"",
+							"pm.test(\"Count matches number of movies\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.count).to.eql(jsonData.movies.length);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://tcss460-moviewebapi.onrender.com/moviesbyyear?year=2025",
+					"protocol": "https",
+					"host": [
+						"tcss460-moviewebapi",
+						"onrender",
+						"com"
+					],
+					"path": [
+						"moviesbyyear"
+					],
+					"query": [
+						{
+							"key": "year",
+							"value": "2025"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Movies by Year - 2020",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has correct structure\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('year');",
+							"    pm.expect(jsonData).to.have.property('count');",
+							"    pm.expect(jsonData).to.have.property('movies');",
+							"});",
+							"",
+							"pm.test(\"Movies is an array\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.movies).to.be.an('array');",
+							"});",
+							"",
+							"pm.test(\"Response contains movies\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.movies.length).to.be.above(0);",
+							"});",
+							"",
+							"pm.test(\"Year matches requested year\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var requestedYear = pm.request.url.query.get(\"year\");",
+							"    pm.expect(jsonData.year).to.eql(requestedYear);",
+							"});",
+							"",
+							"pm.test(\"Count matches number of movies\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.count).to.eql(jsonData.movies.length);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://tcss460-moviewebapi.onrender.com/moviesbyyear?year=2020",
+					"protocol": "https",
+					"host": [
+						"tcss460-moviewebapi",
+						"onrender",
+						"com"
+					],
+					"path": [
+						"moviesbyyear"
+					],
+					"query": [
+						{
+							"key": "year",
+							"value": "2020"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Movies by Year - 2030 (No Results)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has correct structure\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('year');",
+							"    pm.expect(jsonData).to.have.property('count');",
+							"    pm.expect(jsonData).to.have.property('movies');",
+							"});",
+							"",
+							"pm.test(\"No movies found for future year\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.movies.length).to.eql(0);",
+							"    pm.expect(jsonData.count).to.eql(0);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://tcss460-moviewebapi.onrender.com/moviesbyyear?year=2030",
+					"protocol": "https",
+					"host": [
+						"tcss460-moviewebapi",
+						"onrender",
+						"com"
+					],
+					"path": [
+						"moviesbyyear"
+					],
+					"query": [
+						{
+							"key": "year",
+							"value": "2030"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Movies by Year - Invalid (Text)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400 (Bad Request)\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test(\"Returns error message\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('error');",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://tcss460-moviewebapi.onrender.com/moviesbyyear?year=abcd",
+					"protocol": "https",
+					"host": [
+						"tcss460-moviewebapi",
+						"onrender",
+						"com"
+					],
+					"path": [
+						"moviesbyyear"
+					],
+					"query": [
+						{
+							"key": "year",
+							"value": "abcd"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
