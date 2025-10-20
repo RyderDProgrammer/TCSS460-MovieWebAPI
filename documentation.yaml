@@ -15,10 +15,10 @@ info:
     - Postman tests included in `/testing/postman/postman.json` (covers implemented routes).
     - Other routes are part of the final API design and are marked as **Not Implemented Yet**.
     - Documentation hosted at `/api-docs` for class-wide consistency.
-  version: "1.0.0"
+
 servers:
-  - url: https://api.example.com/v1
-    description: Production server (change for your deployment)
+  - url: https://tcss460-moviewebapi.onrender.com/v1
+    description: Production server
   - url: http://localhost:3000/v1
     description: Local development
 
@@ -31,6 +31,7 @@ components:
       type: apiKey
       in: header
       name: X-API-Key
+      description: API key required for most endpoints. Contact the administrator to obtain an API key.
 
   schemas:
 
@@ -42,46 +43,57 @@ components:
       properties:
         movie_id:
           type: integer
+          description: Unique identifier for the movie
           example: 123
         title:
           type: string
+          description: Movie title
           example: "Inception"
         original_title:
           type: string
+          description: Original title (if different from English title)
           example: "Inception"
         release_date:
           type: string
           format: date
+          description: Release date in YYYY-MM-DD format
           example: "2010-07-16"
         runtime_min:
           type: integer
+          description: Runtime in minutes
           example: 148
         overview:
           type: string
+          description: Plot summary or description
           example: "A thief who steals corporate secrets..."
         budget:
           type: integer
           format: int64
-          description: budget in cents or smallest unit (or in whole dollars depending on implementation)
+          description: Production budget in USD
           example: 160000000
         revenue:
           type: integer
           format: int64
+          description: Box office revenue in USD
           example: 825532764
         mpa_rating:
           type: string
+          description: MPA rating (G, PG, PG-13, R, NC-17, etc.)
           example: "PG-13"
         collection:
           type: string
           nullable: true
+          description: Movie collection or franchise name
           example: "The Inception Collection"
         poster_url:
           type: string
           format: uri
+          description: URL to movie poster image
           example: "https://image.tmdb.org/t/p/w500/xxx.jpg"
         backdrop_url:
           type: string
           format: uri
+          description: URL to backdrop/banner image
           example: "https://image.tmdb.org/t/p/w1280/yyy.jpg"
 
     Genre:
@@ -89,9 +101,11 @@ components:
       properties:
         genre_id:
           type: integer
+          description: Unique identifier for the genre
           example: 1
         name:
           type: string
+          description: Genre name
           example: "Action"
 
     Studio:
@@ -99,16 +113,20 @@ components:
       properties:
         studio_id:
           type: integer
+          description: Unique identifier for the studio
           example: 10
         name:
           type: string
+          description: Studio name
           example: "Warner Bros."
         country:
           type: string
+          description: Country where studio is based
           example: "USA"
         logo_url:
           type: string
           format: uri
+          description: URL to studio logo
           example: "https://studio.example.com/logos/warner.png"
 
     Person:
@@ -116,13 +134,16 @@ components:
       properties:
         person_id:
           type: integer
+          description: Unique identifier for the person
           example: 501
         name:
           type: string
+          description: Full name
           example: "Christopher Nolan"
         profile_url:
           type: string
           format: uri
+          description: URL to profile photo
           example: "https://image.tmdb.org/t/p/w300/zzz.jpg"
 
     # ----- Join / Relationship Entities -----
@@ -134,12 +155,15 @@ components:
       properties:
         movie_genre_id:
           type: integer
+          description: Unique identifier for this association
           example: 1001
         movie_id:
           type: integer
+          description: Reference to movie
           example: 123
         genre_id:
           type: integer
+          description: Reference to genre
           example: 1
 
     Movie_Cast:
@@ -150,19 +174,23 @@ components:
       properties:
         uniqueId:
           type: integer
-          example: 3001
           description: Primary key for the movie_cast row
+          example: 3001
         movie_id:
           type: integer
+          description: Reference to movie
           example: 123
         person_id:
           type: integer
+          description: Reference to person (actor)
           example: 900
         character_name:
           type: string
+          description: Name of character played
           example: "Dom Cobb"
         cast_order:
           type: integer
+          description: Billing order (1 = top billing)
           example: 1
 
     Movie_Director:
@@ -173,12 +201,15 @@ components:
       properties:
         movie_director_id:
           type: integer
+          description: Unique identifier for this association
           example: 4001
         movie_id:
           type: integer
+          description: Reference to movie
           example: 123
         person_id:
           type: integer
+          description: Reference to person (director)
           example: 501
 
     Movie_Producer:
@@ -189,12 +220,15 @@ components:
       properties:
         movie_producer_id:
           type: integer
+          description: Unique identifier for this association
           example: 5001
         movie_id:
           type: integer
+          description: Reference to movie
           example: 123
         person_id:
           type: integer
+          description: Reference to person (producer)
           example: 602
 
     Movie_Studios:
@@ -205,12 +239,15 @@ components:
       properties:
         movie_studios_id:
           type: integer
+          description: Unique identifier for this association
           example: 6001
         movie_id:
           type: integer
+          description: Reference to movie
           example: 123
         studio_id:
           type: integer
+          description: Reference to studio
           example: 10
 
   responses:
@@ -224,8 +261,9 @@ components:
               message:
                 type: string
                 example: "Not found"
+    
     BadRequest:
-      description: Bad request
+      description: Bad request - invalid input or parameters
       content:
         application/json:
           schema:
@@ -234,6 +272,18 @@ components:
               message:
                 type: string
                 example: "Invalid input"
+    
+    Unauthorized:
+      description: Missing or invalid API key
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Unauthorized - invalid or missing API key"
+    
     ServerError:
       description: Internal server error
       content:
@@ -248,14 +298,38 @@ components:
 paths:
 
   ### ----------------------------
+  ### Health Check
+  ### ----------------------------
+
+  /health:
+    get:
+      tags:
+        - default
+      summary: API health check
+      description: Basic health endpoint (no API key required)
+      security: []
+      responses:
+        '200':
+          description: API is operational
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok"
+
+  ### ----------------------------
   ### Movies
   ### ----------------------------
 
   /movies:
-
     get:
+      tags:
+        - movies
       summary: List movies (paginated)
-      description: Returns a paginated list of movies. Query params: page, per_page, q (search).
+      description: Returns a paginated list of movies. Supports search and pagination.
       parameters:
         - in: query
           name: page
@@ -263,7 +337,8 @@ paths:
             type: integer
             minimum: 1
             default: 1
-          description: Page number
+          description: Page number (starts at 1)
+          example: 1
         - in: query
           name: per_page
           schema:
@@ -271,17 +346,19 @@ paths:
             minimum: 1
             maximum: 200
             default: 25
-          description: Items per page
+          description: Number of items per page (max 200)
+          example: 25
         - in: query
           name: q
           schema:
             type: string
-          description: Free text search on movie title
+          description: Search query to filter movies by title
+          example: "inception"
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: A list of movies
+          description: A paginated list of movies
           content:
             application/json:
               schema:
@@ -302,12 +379,16 @@ paths:
                       $ref: '#/components/schemas/Movie'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/ServerError'
 
     post:
+      tags:
+        - movies
       summary: Create a movie
-      description: Create a movie record.
+      description: Create a new movie record in the database.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -318,22 +399,26 @@ paths:
               $ref: '#/components/schemas/Movie'
       responses:
         '201':
-          description: Movie created
+          description: Movie successfully created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Movie'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/ServerError'
 
-
   /moviesbyyear:
     get:
-      summary: Get movies released in a given year (implemented)
-      description: >
-        Returns all movies released in the specified year.
+      tags:
+        - movies
+      summary: Get movies by release year
+      description: |
+        Returns all movies released in the specified year. This endpoint is implemented
+        and queries the cloud-hosted SQLite database.
         Example usage: `/moviesbyyear?year=2019`
       parameters:
         - in: query
@@ -342,7 +427,10 @@ paths:
           schema:
             type: string
             pattern: '^[0-9]{4}$'
-          description: Year of release (YYYY format)
+          description: Year of release in YYYY format (e.g., 2019)
+          example: "2019"
+      security:
+        - ApiKeyAuth: []
       responses:
         '200':
           description: List of movies released in the specified year
@@ -363,6 +451,8 @@ paths:
                       $ref: '#/components/schemas/Movie'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/ServerError'
 
@@ -373,9 +463,14 @@ paths:
         required: true
         schema:
           type: integer
-        description: The ID of the movie
+        description: The unique identifier of the movie
+        example: 123
+    
     get:
+      tags:
+        - movies
       summary: Get movie by ID
+      description: Retrieve a single movie by its unique identifier.
       security:
         - ApiKeyAuth: []
       responses:
@@ -385,13 +480,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Movie'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/ServerError'
 
     put:
+      tags:
+        - movies
       summary: Update a movie by ID
+      description: Update an existing movie's information.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -402,25 +502,32 @@ paths:
               $ref: '#/components/schemas/Movie'
       responses:
         '200':
-          description: Movie updated
+          description: Movie successfully updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Movie'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/ServerError'
 
     delete:
+      tags:
+        - movies
       summary: Delete a movie
+      description: Permanently delete a movie from the database.
       security:
         - ApiKeyAuth: []
       responses:
         '204':
-          description: Movie deleted (no content)
+          description: Movie successfully deleted (no content returned)
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
         '500':
@@ -432,23 +539,31 @@ paths:
 
   /genres:
     get:
+      tags:
+        - genres
       summary: List genres
+      description: Retrieve all available movie genres.
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: List of genres
+          description: List of all genres
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Genre'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/ServerError'
 
     post:
+      tags:
+        - genres
       summary: Create a genre
+      description: Add a new genre to the database.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -459,13 +574,15 @@ paths:
               $ref: '#/components/schemas/Genre'
       responses:
         '201':
-          description: Genre created
+          description: Genre successfully created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Genre'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/ServerError'
 
@@ -476,21 +593,35 @@ paths:
         required: true
         schema:
           type: integer
+        description: The unique identifier of the genre
+        example: 1
+    
     get:
+      tags:
+        - genres
       summary: Get genre by ID
+      description: Retrieve a single genre by its unique identifier.
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: Genre object
+          description: Genre found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Genre'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    
     put:
+      tags:
+        - genres
       summary: Update genre
+      description: Update an existing genre's information.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -501,18 +632,36 @@ paths:
               $ref: '#/components/schemas/Genre'
       responses:
         '200':
-          description: Genre updated
+          description: Genre successfully updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Genre'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    
     delete:
+      tags:
+        - genres
       summary: Delete genre
+      description: Permanently delete a genre from the database.
       security:
         - ApiKeyAuth: []
       responses:
         '204':
-          description: Genre deleted
+          description: Genre successfully deleted (no content returned)
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   ### ----------------------------
   ### Studios
@@ -520,20 +669,31 @@ paths:
 
   /studios:
     get:
+      tags:
+        - studios
       summary: List studios
+      description: Retrieve all movie studios.
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: List of studios
+          description: List of all studios
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Studio'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    
     post:
+      tags:
+        - studios
       summary: Create studio
+      description: Add a new studio to the database.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -544,13 +704,17 @@ paths:
               $ref: '#/components/schemas/Studio'
       responses:
         '201':
-          description: Studio created
+          description: Studio successfully created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Studio'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /studios/{studio_id}:
     parameters:
@@ -559,21 +723,35 @@ paths:
         required: true
         schema:
           type: integer
+        description: The unique identifier of the studio
+        example: 10
+    
     get:
+      tags:
+        - studios
       summary: Get studio by ID
+      description: Retrieve a single studio by its unique identifier.
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: Studio
+          description: Studio found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Studio'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    
     put:
+      tags:
+        - studios
       summary: Update studio
+      description: Update an existing studio's information.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -584,18 +762,36 @@ paths:
               $ref: '#/components/schemas/Studio'
       responses:
         '200':
-          description: Studio updated
+          description: Studio successfully updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Studio'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    
     delete:
+      tags:
+        - studios
       summary: Delete studio
+      description: Permanently delete a studio from the database.
       security:
         - ApiKeyAuth: []
       responses:
         '204':
-          description: Studio deleted
+          description: Studio successfully deleted (no content returned)
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   ### ----------------------------
   ### People
@@ -603,20 +799,31 @@ paths:
 
   /people:
     get:
+      tags:
+        - people
       summary: List people
+      description: Retrieve all people (actors, directors, producers, etc.).
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: List of people
+          description: List of all people
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Person'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    
     post:
+      tags:
+        - people
       summary: Create person
+      description: Add a new person to the database.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -627,11 +834,17 @@ paths:
               $ref: '#/components/schemas/Person'
       responses:
         '201':
-          description: Person created
+          description: Person successfully created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Person'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /people/{person_id}:
     parameters:
@@ -640,21 +853,35 @@ paths:
         required: true
         schema:
           type: integer
+        description: The unique identifier of the person
+        example: 501
+    
     get:
+      tags:
+        - people
       summary: Get person by ID
+      description: Retrieve a single person by their unique identifier.
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: Person
+          description: Person found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Person'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    
     put:
+      tags:
+        - people
       summary: Update person
+      description: Update an existing person's information.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -665,18 +892,36 @@ paths:
               $ref: '#/components/schemas/Person'
       responses:
         '200':
-          description: Person updated
+          description: Person successfully updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Person'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    
     delete:
+      tags:
+        - people
       summary: Delete person
+      description: Permanently delete a person from the database.
       security:
         - ApiKeyAuth: []
       responses:
         '204':
-          description: Person deleted
+          description: Person successfully deleted (no content returned)
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   ### ----------------------------
   ### Movie_Genres (join)
@@ -684,20 +929,31 @@ paths:
 
   /movie_genres:
     get:
+      tags:
+        - relationships
       summary: List movie-genre associations
+      description: Retrieve all movie-genre relationship records.
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: List of associations
+          description: List of movie-genre associations
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Movie_Genre'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    
     post:
+      tags:
+        - relationships
       summary: Associate a movie with a genre
+      description: Create a new movie-genre relationship.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -708,13 +964,17 @@ paths:
               $ref: '#/components/schemas/Movie_Genre'
       responses:
         '201':
-          description: Association created
+          description: Association successfully created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Movie_Genre'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /movie_genres/{movie_genre_id}:
     parameters:
@@ -723,15 +983,25 @@ paths:
         required: true
         schema:
           type: integer
+        description: The unique identifier of the movie-genre association
+        example: 1001
+    
     delete:
+      tags:
+        - relationships
       summary: Remove movie-genre association
+      description: Delete a movie-genre relationship.
       security:
         - ApiKeyAuth: []
       responses:
         '204':
-          description: Association removed
+          description: Association successfully removed (no content returned)
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   ### ----------------------------
   ### Movie_Cast
@@ -739,20 +1009,31 @@ paths:
 
   /movie_cast:
     get:
+      tags:
+        - relationships
       summary: List cast entries
+      description: Retrieve all movie cast member records.
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: List of cast rows
+          description: List of cast entries
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Movie_Cast'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    
     post:
+      tags:
+        - relationships
       summary: Add a cast member to a movie
+      description: Create a new movie cast record.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -763,13 +1044,17 @@ paths:
               $ref: '#/components/schemas/Movie_Cast'
       responses:
         '201':
-          description: Cast row created
+          description: Cast member successfully added
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Movie_Cast'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /movie_cast/{uniqueId}:
     parameters:
@@ -778,21 +1063,35 @@ paths:
         required: true
         schema:
           type: integer
+        description: The unique identifier of the cast entry
+        example: 3001
+    
     get:
-      summary: Get cast row by uniqueId
+      tags:
+        - relationships
+      summary: Get cast entry by ID
+      description: Retrieve a single cast entry by its unique identifier.
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: Cast row
+          description: Cast entry found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Movie_Cast'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    
     put:
-      summary: Update cast row
+      tags:
+        - relationships
+      summary: Update cast entry
+      description: Update an existing cast member's information.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -803,18 +1102,36 @@ paths:
               $ref: '#/components/schemas/Movie_Cast'
       responses:
         '200':
-          description: Cast row updated
+          description: Cast entry successfully updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Movie_Cast'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    
     delete:
-      summary: Remove cast row
+      tags:
+        - relationships
+      summary: Remove cast entry
+      description: Delete a cast member from a movie.
       security:
         - ApiKeyAuth: []
       responses:
         '204':
-          description: Cast row deleted
+          description: Cast entry successfully deleted (no content returned)
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   ### ----------------------------
   ### Movie_Directors
@@ -822,20 +1139,31 @@ paths:
 
   /movie_directors:
     get:
-      summary: List movie-director rows
+      tags:
+        - relationships
+      summary: List movie-director associations
+      description: Retrieve all movie-director relationship records.
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: List of directors associations
+          description: List of director associations
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Movie_Director'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    
     post:
+      tags:
+        - relationships
       summary: Add a director to a movie
+      description: Create a new movie-director relationship.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -846,13 +1174,17 @@ paths:
               $ref: '#/components/schemas/Movie_Director'
       responses:
         '201':
-          description: Director row created
+          description: Director successfully added
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Movie_Director'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /movie_directors/{movie_director_id}:
     parameters:
@@ -861,15 +1193,25 @@ paths:
         required: true
         schema:
           type: integer
+        description: The unique identifier of the movie-director association
+        example: 4001
+    
     delete:
-      summary: Remove movie director association
+      tags:
+        - relationships
+      summary: Remove movie-director association
+      description: Delete a movie-director relationship.
       security:
         - ApiKeyAuth: []
       responses:
         '204':
-          description: Director association removed
+          description: Director association successfully removed (no content returned)
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   ### ----------------------------
   ### Movie_Producers
@@ -877,20 +1219,31 @@ paths:
 
   /movie_producers:
     get:
-      summary: List movie-producer rows
+      tags:
+        - relationships
+      summary: List movie-producer associations
+      description: Retrieve all movie-producer relationship records.
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: List of producers
+          description: List of producer associations
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Movie_Producer'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    
     post:
+      tags:
+        - relationships
       summary: Add a producer to a movie
+      description: Create a new movie-producer relationship.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -901,13 +1254,17 @@ paths:
               $ref: '#/components/schemas/Movie_Producer'
       responses:
         '201':
-          description: Producer row created
+          description: Producer successfully added
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Movie_Producer'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /movie_producers/{movie_producer_id}:
     parameters:
@@ -916,15 +1273,25 @@ paths:
         required: true
         schema:
           type: integer
+        description: The unique identifier of the movie-producer association
+        example: 5001
+    
     delete:
-      summary: Remove producer association
+      tags:
+        - relationships
+      summary: Remove movie-producer association
+      description: Delete a movie-producer relationship.
       security:
         - ApiKeyAuth: []
       responses:
         '204':
-          description: Producer association removed
+          description: Producer association successfully removed (no content returned)
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   ### ----------------------------
   ### Movie_Studios (join)
@@ -932,20 +1299,31 @@ paths:
 
   /movie_studios:
     get:
+      tags:
+        - relationships
       summary: List movie-studio associations
+      description: Retrieve all movie-studio relationship records.
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: List of movie-studios rows
+          description: List of movie-studio associations
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Movie_Studios'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    
     post:
+      tags:
+        - relationships
       summary: Associate a studio with a movie
+      description: Create a new movie-studio relationship.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -956,11 +1334,17 @@ paths:
               $ref: '#/components/schemas/Movie_Studios'
       responses:
         '201':
-          description: Association created
+          description: Studio association successfully created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Movie_Studios'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /movie_studios/{movie_studios_id}:
     parameters:
@@ -969,38 +1353,29 @@ paths:
         required: true
         schema:
           type: integer
+        description: The unique identifier of the movie-studio association
+        example: 6001
+    
     delete:
+      tags:
+        - relationships
       summary: Remove movie-studio association
+      description: Delete a movie-studio relationship.
       security:
         - ApiKeyAuth: []
       responses:
         '204':
-          description: Association removed
+          description: Studio association successfully removed (no content returned)
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
-
-  ### ----------------------------
-  ### Utility / health / docs (optional)
-  ### ----------------------------
-
-  /health:
-    get:
-      summary: API health check
-      description: Basic health endpoint (no API key required)
-      security: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: "ok"
+        '500':
+          $ref: '#/components/responses/ServerError'
 
 tags:
+  - name: default
+    description: Health check and utility endpoints
   - name: movies
     description: Movie resource operations
   - name: genres
