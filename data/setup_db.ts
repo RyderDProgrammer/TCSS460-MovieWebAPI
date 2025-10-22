@@ -7,8 +7,20 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const dbFile = path.join(__dirname, 'SQL Scripts', 'movies.db');  // Database goes in SQL Scripts
-const sqlFile = path.join(__dirname, 'SQL Scripts', 'create_movie_db.sql');
+// Database goes in data/ folder (current directory)
+const dbFile = path.join(__dirname, 'movies.db');
+
+// SQL schema is in SQL_Scripts subfolder
+const sqlFile = path.join(__dirname, 'SQL_Scripts', 'create_movie_db.sql');
+
+console.log('Database path:', dbFile);
+console.log('SQL schema path:', sqlFile);
+
+// Check if SQL file exists
+if (!fs.existsSync(sqlFile)) {
+    console.error(`SQL file not found at: ${sqlFile}`);
+    process.exit(1);
+}
 
 // Delete old database if it exists
 if (fs.existsSync(dbFile)) {
@@ -28,7 +40,8 @@ db.exec(schema, (err: Error | null) => {
         console.error('Error creating schema:', err);
         process.exit(1);
     } else {
-        console.log('Database created successfully at:', dbFile);
+        console.log('✅ Database created successfully at:', dbFile);
+        console.log('✅ Schema loaded from:', sqlFile);
     }
     db.close((closeErr: Error | null) => {
         if (closeErr) {

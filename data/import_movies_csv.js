@@ -1,10 +1,16 @@
-const sqlite3 = require('sqlite3').verbose();
-const fs = require('fs');
-const csv = require('csv-parser');
-const path = require('path');
+import sqlite3 from 'sqlite3';
+import fs from 'fs';
+import csv from 'csv-parser';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const sqlite3Verbose = sqlite3.verbose();
 
 async function importMoviesCSV(csvFile, dbFile) {
-    const db = new sqlite3.Database(dbFile);
+    const db = new sqlite3Verbose.Database(dbFile);
     
     // Enable foreign keys
     db.run("PRAGMA foreign_keys = ON");
@@ -264,10 +270,14 @@ async function importMoviesCSV(csvFile, dbFile) {
     console.log(`Average speed: ${(processedCount / totalTime).toFixed(1)} movies/second`);
 }
 
-// Usage
-const csvFile = path.join('project_files', 'movies_last30years.csv');
-const dbFile = path.join('SQL Scripts', 'movies.db');
+// Fixed paths for new structure
+const csvFile = path.join(__dirname, '..', 'project_files', 'movies_last30years.csv');
+const dbFile = path.join(__dirname, 'movies.db');
+
+console.log('CSV file path:', csvFile);
+console.log('Database path:', dbFile);
+console.log('');
 
 importMoviesCSV(csvFile, dbFile)
-    .then(() => console.log('\nDone!'))
-    .catch(err => console.error('Fatal error:', err));
+    .then(() => console.log('\n✅ Done!'))
+    .catch(err => console.error('❌ Fatal error:', err));
