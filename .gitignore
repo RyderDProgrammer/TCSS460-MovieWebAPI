@@ -7,3 +7,6 @@ SQL Scripts/*.db-shm
 .env
 data/movies.db-shm
 data/movies.db-wal
+data/movies.db
+data/movies.db-shm
+data/movies.db-wal

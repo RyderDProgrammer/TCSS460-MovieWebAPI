@@ -1,31 +1,28 @@
-import express, { Router, Request, Response, NextFunction } from 'express';
+// movieRoutes.ts
+import express, { Router } from 'express';
 import {
   getAllMovies,
   getMovieById,
   createMovie,
   updateMovie,
-  deleteMovie,
-  getMoviesByYear
-} from '../controllers/movieController';
+  deleteMovie
+} from '../controllers/movieController.js';
 
 const router: Router = express.Router();
 
-// GET /movies - List movies with pagination and search
+// GET /movies - List movies
 router.get('/', getAllMovies);
 
-// GET /moviesbyyear - Get movies by year (already implemented)
-router.get('/moviesbyyear', getMoviesByYear);
-
-// GET /movies/:movie_id - Get movie by ID
-router.get('/:movie_id', getMovieById);
+// GET /movies/:id - Get movie by ID
+router.get('/:id', getMovieById);
 
 // POST /movies - Create a new movie
 router.post('/', createMovie);
 
-// PUT /movies/:movie_id - Update a movie
-router.put('/:movie_id', updateMovie);
+// PUT /movies/:id - Update a movie
+router.put('/:id', updateMovie);
 
-// DELETE /movies/:movie_id - Delete a movie
-router.delete('/:movie_id', deleteMovie);
+// DELETE /movies/:id - Delete a movie
+router.delete('/:id', deleteMovie);
 
 export default router;

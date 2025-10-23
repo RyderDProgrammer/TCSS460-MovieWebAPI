@@ -1,0 +1,401 @@
+{
+  "info": {
+    "name": "Movie Database API",
+    "description": "Complete test collection for Movie API endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "api_key",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "test_movie_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        },
+        "description": "Test health endpoint (no API key required)"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Movies by Year (2024)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/moviesbyyear?year=2024",
+          "host": ["{{base_url}}"],
+          "path": ["moviesbyyear"],
+          "query": [
+            {
+              "key": "year",
+              "value": "2024"
+            }
+          ]
+        },
+        "description": "Get all movies from 2024 (no API key required)"
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Movies (No API Key) - Should Fail",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/movies?page=1&pageSize=10",
+          "host": ["{{base_url}}"],
+          "path": ["movies"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "pageSize",
+              "value": "10"
+            }
+          ]
+        },
+        "description": "This should return 401 Unauthorized"
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Movies",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/movies?page=1&pageSize=10",
+          "host": ["{{base_url}}"],
+          "path": ["movies"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "pageSize",
+              "value": "10"
+            }
+          ]
+        },
+        "description": "Get paginated list of movies"
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Movies - With Search",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/movies?q=Batman&page=1&pageSize=10",
+          "host": ["{{base_url}}"],
+          "path": ["movies"],
+          "query": [
+            {
+              "key": "q",
+              "value": "Batman"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "pageSize",
+              "value": "10"
+            }
+          ]
+        },
+        "description": "Search for movies by title"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Movie by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/movies/1",
+          "host": ["{{base_url}}"],
+          "path": ["movies", "1"]
+        },
+        "description": "Get detailed movie information including genres and cast"
+      },
+      "response": []
+    },
+    {
+      "name": "Create New Movie",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "    var jsonData = pm.response.json();",
+              "    pm.collectionVariables.set('test_movie_id', jsonData.movie_id);",
+              "    pm.test('Movie created successfully', function() {",
+              "        pm.expect(jsonData.title).to.eql('Test Movie - Postman');",
+              "    });",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Test Movie - Postman\",\n  \"original_title\": \"Test Movie - Postman\",\n  \"release_date\": \"2024-12-01\",\n  \"runtime_in_minutes\": 120,\n  \"overview\": \"This is a test movie created via Postman to test the API\",\n  \"budget\": 50000000,\n  \"revenue\": 150000000,\n  \"mpa_rating\": \"PG-13\",\n  \"collection\": \"Test Collection\",\n  \"poster_url\": \"https://example.com/poster.jpg\",\n  \"backdrop_url\": \"https://example.com/backdrop.jpg\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/movies",
+          "host": ["{{base_url}}"],
+          "path": ["movies"]
+        },
+        "description": "Create a new movie (saves movie_id for later tests)"
+      },
+      "response": []
+    },
+    {
+      "name": "Create Movie - Missing Title (Should Fail)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"release_date\": \"2024-12-01\",\n  \"runtime_in_minutes\": 120\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/movies",
+          "host": ["{{base_url}}"],
+          "path": ["movies"]
+        },
+        "description": "Should return 400 Bad Request - title is required"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Created Movie by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/movies/{{test_movie_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["movies", "{{test_movie_id}}"]
+        },
+        "description": "Get the movie we just created (uses saved movie_id)"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Movie",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Test Movie - UPDATED\",\n  \"original_title\": \"Test Movie - UPDATED\",\n  \"release_date\": \"2024-12-15\",\n  \"runtime_in_minutes\": 135,\n  \"overview\": \"This movie has been updated via Postman\",\n  \"budget\": 60000000,\n  \"revenue\": 180000000,\n  \"mpa_rating\": \"R\",\n  \"collection\": \"Test Collection - Updated\",\n  \"poster_url\": \"https://example.com/poster-new.jpg\",\n  \"backdrop_url\": \"https://example.com/backdrop-new.jpg\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/movies/{{test_movie_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["movies", "{{test_movie_id}}"]
+        },
+        "description": "Update the movie we created"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Movie - Invalid ID (Should Fail)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Test Movie\",\n  \"release_date\": \"2024-12-01\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/movies/999999",
+          "host": ["{{base_url}}"],
+          "path": ["movies", "999999"]
+        },
+        "description": "Should return 404 Not Found"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Updated Movie",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/movies/{{test_movie_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["movies", "{{test_movie_id}}"]
+        },
+        "description": "Verify the movie was updated"
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Movie",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/movies/{{test_movie_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["movies", "{{test_movie_id}}"]
+        },
+        "description": "Delete the test movie we created"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Deleted Movie (Should Fail)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/movies/{{test_movie_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["movies", "{{test_movie_id}}"]
+        },
+        "description": "Should return 404 - movie was deleted"
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Non-Existent Movie (Should Fail)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/movies/999999",
+          "host": ["{{base_url}}"],
+          "path": ["movies", "999999"]
+        },
+        "description": "Should return 404 Not Found"
+      },
+      "response": []
+    }
+  ]
+}
