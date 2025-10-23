@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { db } from '../core/utilities/database.js';
-import { Movie, Genre, CastMember, MovieWithDetails } from '../types/movieTypes.js';
+import { db } from '../core/utilities/database';
+import { Movie, Genre, CastMember, MovieWithDetails } from '../types/movieTypes';
 
 /**
  * GET /movies - Get all movies with pagination and optional title search
@@ -114,6 +114,183 @@ export const getMovieById = (req: Request, res: Response) => {
         
         res.json(movieWithDetails);
       });
+    });
+  });
+};
+
+/**
+ * POST /movies - Create a new movie
+ */
+export const createMovie = (req: Request, res: Response) => {
+  const {
+    title,
+    original_title,
+    release_date,
+    runtime_in_minutes,
+    overview,
+    budget,
+    revenue,
+    mpa_rating,
+    collection,
+    poster_url,
+    backdrop_url
+  } = req.body;
+
+  if (!title) {
+    return res.status(400).json({ error: 'Title is required' });
+  }
+
+  const sql = `
+    INSERT INTO Movies (
+      title, original_title, release_date, runtime_in_minutes, overview,
+      budget, revenue, mpa_rating, collection, poster_url, backdrop_url
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  const params = [
+    title,
+    original_title || null,
+    release_date || null,
+    runtime_in_minutes || null,
+    overview || null,
+    budget || null,
+    revenue || null,
+    mpa_rating || null,
+    collection || null,
+    poster_url || null,
+    backdrop_url || null
+  ];
+
+  db.run(sql, params, function(err: Error | null) {
+    if (err) {
+      console.error('Error creating movie:', err);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+
+    // Fetch the newly created movie
+    const newId = this.lastID;
+    db.get('SELECT * FROM Movies WHERE movie_id = ?', [newId], (getErr: Error | null, movie: Movie) => {
+      if (getErr) {
+        return res.status(500).json({ error: getErr.message });
+      }
+      res.status(201).json(movie);
+    });
+  });
+};
+
+/**
+ * PUT /movies/:id - Update an existing movie
+ */
+export const updateMovie = (req: Request, res: Response) => {
+  const id = parseInt(req.params.id, 10);
+
+  if (!id) {
+    return res.status(400).json({ error: 'Invalid movie ID' });
+  }
+
+  // Check if movie exists
+  db.get('SELECT * FROM Movies WHERE movie_id = ?', [id], (checkErr: Error | null, existing: Movie) => {
+    if (checkErr) {
+      return res.status(500).json({ error: checkErr.message });
+    }
+    if (!existing) {
+      return res.status(404).json({ error: 'Movie not found' });
+    }
+
+    const {
+      title,
+      original_title,
+      release_date,
+      runtime_in_minutes,
+      overview,
+      budget,
+      revenue,
+      mpa_rating,
+      collection,
+      poster_url,
+      backdrop_url
+    } = req.body;
+
+    if (!title) {
+      return res.status(400).json({ error: 'Title is required' });
+    }
+
+    const sql = `
+      UPDATE Movies SET
+        title = ?,
+        original_title = ?,
+        release_date = ?,
+        runtime_in_minutes = ?,
+        overview = ?,
+        budget = ?,
+        revenue = ?,
+        mpa_rating = ?,
+        collection = ?,
+        poster_url = ?,
+        backdrop_url = ?
+      WHERE movie_id = ?
+    `;
+
+    const params = [
+      title,
+      original_title || null,
+      release_date || null,
+      runtime_in_minutes || null,
+      overview || null,
+      budget || null,
+      revenue || null,
+      mpa_rating || null,
+      collection || null,
+      poster_url || null,
+      backdrop_url || null,
+      id
+    ];
+
+    db.run(sql, params, (err: Error | null) => {
+      if (err) {
+        console.error('Error updating movie:', err);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+
+      // Fetch the updated movie
+      db.get('SELECT * FROM Movies WHERE movie_id = ?', [id], (getErr: Error | null, movie: Movie) => {
+        if (getErr) {
+          return res.status(500).json({ error: getErr.message });
+        }
+        res.status(200).json(movie);
+      });
+    });
+  });
+};
+
+/**
+ * DELETE /movies/:id - Delete a movie
+ */
+export const deleteMovie = (req: Request, res: Response) => {
+  const id = parseInt(req.params.id, 10);
+
+  if (!id) {
+    return res.status(400).json({ error: 'Invalid movie ID' });
+  }
+
+  // Check if movie exists
+  db.get('SELECT * FROM Movies WHERE movie_id = ?', [id], (checkErr: Error | null, existing: Movie) => {
+    if (checkErr) {
+      return res.status(500).json({ error: checkErr.message });
+    }
+    if (!existing) {
+      return res.status(404).json({ error: 'Movie not found' });
+    }
+
+    const sql = 'DELETE FROM Movies WHERE movie_id = ?';
+
+    db.run(sql, [id], (err: Error | null) => {
+      if (err) {
+        console.error('Error deleting movie:', err);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+
+      res.status(204).send();
     });
   });
 };

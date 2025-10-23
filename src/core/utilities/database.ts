@@ -15,15 +15,67 @@ if (!fs.existsSync(DB_PATH)) {
   process.exit(1);
 }
 
-// Create and export database connection
-export const db = new sqlite3.Database(DB_PATH, sqlite3.OPEN_READONLY, (err) => {
-  if (err) {
-    console.error('Failed to open database:', err.message);
-    process.exit(1);
-  } else {
-    console.log('Connected to SQLite DB at', DB_PATH);
+// Create and export database connection - CHANGED TO READWRITE
+export const db = new sqlite3.Database(
+  DB_PATH, 
+  sqlite3.OPEN_READWRITE, // Changed from OPEN_READONLY
+  (err) => {
+    if (err) {
+      console.error('Failed to open database:', err.message);
+      process.exit(1);
+    } else {
+      console.log('Connected to SQLite DB at', DB_PATH);
+    }
   }
-});
+);
+
+/**
+ * Execute a SELECT query (returns multiple rows)
+ */
+export function query(sql: string, params: any[] = []): Promise<any[]> {
+  return new Promise((resolve, reject) => {
+    db.all(sql, params, (err, rows) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(rows || []);
+      }
+    });
+  });
+}
+
+/**
+ * Execute INSERT, UPDATE, or DELETE query
+ */
+export function run(sql: string, params: any[] = []): Promise<any> {
+  return new Promise((resolve, reject) => {
+    db.run(sql, params, function(err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve({
+          lastID: this.lastID,
+          changes: this.changes
+        });
+      }
+    });
+  });
+}
+
+/**
+ * Execute a SELECT query that returns a single row
+ */
+export function get(sql: string, params: any[] = []): Promise<any> {
+  return new Promise((resolve, reject) => {
+    db.get(sql, params, (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(row);
+      }
+    });
+  });
+}
 
 /**
  * Gracefully close database connection

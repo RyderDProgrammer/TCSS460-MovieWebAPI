@@ -4,24 +4,10 @@ info:
   version: "1.0.0"
   description: |
     REST API for the Movies dataset. Routes are protected by an API key header `X-API-Key`.
-    This file documents Movies, Genres, Studios, People, and the join tables (cast, directors, producers, genres, studios).
+    This API provides full CRUD operations for Movies, Genres, Studios, People, and relationship tables (cast, directors, producers, genres, studios).
 
-    **Published Web API (Beta Version)**  
+    **Published Web API**  
     Hosted at: [https://tcss460-moviewebapi.onrender.com](https://tcss460-moviewebapi.onrender.com)
-
-    ### Current Implementation Status (Oct 2025)
-    **IMPLEMENTED ENDPOINTS:**
-    - ✅ `GET /health` - API health check (no API key required)
-    - ✅ `GET /moviesbyyear?year=YYYY` - Get movies by release year (fully functional)
-    
-    **NOT YET IMPLEMENTED:**
-    All other endpoints listed in this documentation are part of the planned API design but are not yet available.
-    This includes:
-    - `/movies` (all methods)
-    - `/genres` (all methods)
-    - `/studios` (all methods)
-    - `/people` (all methods)
-    - All relationship endpoints (`/movie_genres`, `/movie_cast`, etc.)
 
 servers:
   - url: https://tcss460-moviewebapi.onrender.com
@@ -41,8 +27,6 @@ components:
       description: API key required for most endpoints. Contact the administrator to obtain an API key.
 
   schemas:
-
-    # ----- Primary Entities -----
     Movie:
       type: object
       required:
@@ -65,7 +49,7 @@ components:
           format: date
           description: Release date in YYYY-MM-DD format
           example: "2010-07-16"
-        runtime_min:
+        runtime_in_minutes:
           type: integer
           description: Runtime in minutes
           example: 148
@@ -153,7 +137,6 @@ components:
           description: URL to profile photo
           example: "https://image.tmdb.org/t/p/w300/zzz.jpg"
 
-    # ----- Join / Relationship Entities -----
     Movie_Genre:
       type: object
       required:
@@ -301,37 +284,33 @@ components:
               message:
                 type: string
                 example: "Internal server error"
-    
-    NotImplemented:
-      description: Endpoint not yet implemented
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              message:
-                type: string
-                example: "This endpoint is not yet implemented"
 
 paths:
-
-  ### ----------------------------
-  ### ✅ IMPLEMENTED ENDPOINT
-  ### ----------------------------
+  /health:
+    get:
+      tags:
+        - default
+      summary: API health check
+      description: Basic health endpoint to verify API is operational. No API key required.
+      security: []
+      responses:
+        '200':
+          description: API is operational
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok"
 
   /moviesbyyear:
     get:
       tags:
         - movies
-      summary: "✅ IMPLEMENTED - Get movies by release year"
-      description: |
-        **STATUS: FULLY IMPLEMENTED**
-        
-        Returns all movies released in the specified year. This endpoint queries the cloud-hosted SQLite database.
-        
-        Example usage: `/moviesbyyear?year=2025`
-        
-        Test cases available in Postman collection.
+      summary: Get movies by release year
+      description: Returns all movies released in the specified year.
       parameters:
         - in: query
           name: year
@@ -339,7 +318,7 @@ paths:
           schema:
             type: string
             pattern: '^[0-9]{4}$'
-          description: Year of release in YYYY format (e.g., 2025)
+          description: Year of release in YYYY format
           example: "2025"
       security: []
       responses:
@@ -365,41 +344,12 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
 
-  ### ----------------------------
-  ### ❌ NOT YET IMPLEMENTED
-  ### ----------------------------
-
-  /health:
-    get:
-      tags:
-        - default
-      summary: "✅ IMPLEMENTED - API health check"
-      description: |
-        **STATUS: FULLY IMPLEMENTED**
-        
-        Basic health endpoint to verify API is operational. No API key required.
-      security: []
-      responses:
-        '200':
-          description: API is operational
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: "ok"
-
   /movies:
     get:
       tags:
         - movies
-      summary: "❌ NOT IMPLEMENTED - List movies (paginated)"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: List movies with pagination and search
+      description: Returns a paginated list of movies with optional title search.
       parameters:
         - in: query
           name: page
@@ -407,15 +357,15 @@ paths:
             type: integer
             minimum: 1
             default: 1
-          description: Page number (starts at 1)
+          description: Page number
         - in: query
-          name: per_page
+          name: pageSize
           schema:
             type: integer
             minimum: 1
-            maximum: 200
-            default: 25
-          description: Number of items per page (max 200)
+            maximum: 100
+            default: 20
+          description: Number of items per page
         - in: query
           name: q
           schema:
@@ -424,17 +374,30 @@ paths:
       security:
         - ApiKeyAuth: []
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '200':
+          description: Paginated list of movies
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Movie'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
     post:
       tags:
         - movies
-      summary: "❌ NOT IMPLEMENTED - Create a movie"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Create a new movie
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -444,8 +407,18 @@ paths:
             schema:
               $ref: '#/components/schemas/Movie'
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '201':
+          description: Movie created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /movies/{movie_id}:
     parameters:
@@ -459,25 +432,30 @@ paths:
     get:
       tags:
         - movies
-      summary: "❌ NOT IMPLEMENTED - Get movie by ID"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Get movie by ID
+      description: Returns detailed information about a specific movie.
       security:
         - ApiKeyAuth: []
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '200':
+          description: Movie details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
     put:
       tags:
         - movies
-      summary: "❌ NOT IMPLEMENTED - Update a movie by ID"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Update a movie
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -487,46 +465,64 @@ paths:
             schema:
               $ref: '#/components/schemas/Movie'
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '200':
+          description: Movie updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
     delete:
       tags:
         - movies
-      summary: "❌ NOT IMPLEMENTED - Delete a movie"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Delete a movie
       security:
         - ApiKeyAuth: []
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '204':
+          description: Movie deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /genres:
     get:
       tags:
         - genres
-      summary: "❌ NOT IMPLEMENTED - List genres"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: List all genres
       security:
         - ApiKeyAuth: []
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '200':
+          description: List of genres
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Genre'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
     post:
       tags:
         - genres
-      summary: "❌ NOT IMPLEMENTED - Create a genre"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Create a new genre
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -536,8 +532,18 @@ paths:
             schema:
               $ref: '#/components/schemas/Genre'
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '201':
+          description: Genre created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Genre'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /genres/{genre_id}:
     parameters:
@@ -550,25 +556,29 @@ paths:
     get:
       tags:
         - genres
-      summary: "❌ NOT IMPLEMENTED - Get genre by ID"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Get genre by ID
       security:
         - ApiKeyAuth: []
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '200':
+          description: Genre details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Genre'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
     
     put:
       tags:
         - genres
-      summary: "❌ NOT IMPLEMENTED - Update genre"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Update a genre
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -578,46 +588,64 @@ paths:
             schema:
               $ref: '#/components/schemas/Genre'
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '200':
+          description: Genre updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Genre'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
     
     delete:
       tags:
         - genres
-      summary: "❌ NOT IMPLEMENTED - Delete genre"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Delete a genre
       security:
         - ApiKeyAuth: []
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '204':
+          description: Genre deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /studios:
     get:
       tags:
         - studios
-      summary: "❌ NOT IMPLEMENTED - List studios"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: List all studios
       security:
         - ApiKeyAuth: []
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '200':
+          description: List of studios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Studio'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
     
     post:
       tags:
         - studios
-      summary: "❌ NOT IMPLEMENTED - Create studio"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Create a new studio
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -627,8 +655,18 @@ paths:
             schema:
               $ref: '#/components/schemas/Studio'
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '201':
+          description: Studio created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Studio'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /studios/{studio_id}:
     parameters:
@@ -641,25 +679,29 @@ paths:
     get:
       tags:
         - studios
-      summary: "❌ NOT IMPLEMENTED - Get studio by ID"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Get studio by ID
       security:
         - ApiKeyAuth: []
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '200':
+          description: Studio details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Studio'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
     
     put:
       tags:
         - studios
-      summary: "❌ NOT IMPLEMENTED - Update studio"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Update a studio
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -669,46 +711,64 @@ paths:
             schema:
               $ref: '#/components/schemas/Studio'
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '200':
+          description: Studio updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Studio'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
     
     delete:
       tags:
         - studios
-      summary: "❌ NOT IMPLEMENTED - Delete studio"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Delete a studio
       security:
         - ApiKeyAuth: []
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '204':
+          description: Studio deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /people:
     get:
       tags:
         - people
-      summary: "❌ NOT IMPLEMENTED - List people"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: List all people
       security:
         - ApiKeyAuth: []
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '200':
+          description: List of people
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Person'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
     
     post:
       tags:
         - people
-      summary: "❌ NOT IMPLEMENTED - Create person"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Create a new person
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -718,8 +778,18 @@ paths:
             schema:
               $ref: '#/components/schemas/Person'
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '201':
+          description: Person created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /people/{person_id}:
     parameters:
@@ -732,25 +802,29 @@ paths:
     get:
       tags:
         - people
-      summary: "❌ NOT IMPLEMENTED - Get person by ID"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Get person by ID
       security:
         - ApiKeyAuth: []
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '200':
+          description: Person details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
     
     put:
       tags:
         - people
-      summary: "❌ NOT IMPLEMENTED - Update person"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Update a person
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -760,46 +834,64 @@ paths:
             schema:
               $ref: '#/components/schemas/Person'
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '200':
+          description: Person updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
     
     delete:
       tags:
         - people
-      summary: "❌ NOT IMPLEMENTED - Delete person"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Delete a person
       security:
         - ApiKeyAuth: []
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '204':
+          description: Person deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /movie_genres:
     get:
       tags:
         - relationships
-      summary: "❌ NOT IMPLEMENTED - List movie-genre associations"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: List movie-genre associations
       security:
         - ApiKeyAuth: []
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '200':
+          description: List of movie-genre associations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movie_Genre'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
     
     post:
       tags:
         - relationships
-      summary: "❌ NOT IMPLEMENTED - Associate a movie with a genre"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Associate a movie with a genre
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -809,8 +901,18 @@ paths:
             schema:
               $ref: '#/components/schemas/Movie_Genre'
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '201':
+          description: Association created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie_Genre'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /movie_genres/{movie_genre_id}:
     parameters:
@@ -823,40 +925,46 @@ paths:
     delete:
       tags:
         - relationships
-      summary: "❌ NOT IMPLEMENTED - Remove movie-genre association"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Remove movie-genre association
       security:
         - ApiKeyAuth: []
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '204':
+          description: Association deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /movie_cast:
     get:
       tags:
         - relationships
-      summary: "❌ NOT IMPLEMENTED - List cast entries"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: List all cast entries
       security:
         - ApiKeyAuth: []
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '200':
+          description: List of cast entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movie_Cast'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
     
     post:
       tags:
         - relationships
-      summary: "❌ NOT IMPLEMENTED - Add a cast member to a movie"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Add a cast member to a movie
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -866,8 +974,18 @@ paths:
             schema:
               $ref: '#/components/schemas/Movie_Cast'
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '201':
+          description: Cast entry created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie_Cast'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /movie_cast/{uniqueId}:
     parameters:
@@ -880,25 +998,29 @@ paths:
     get:
       tags:
         - relationships
-      summary: "❌ NOT IMPLEMENTED - Get cast entry by ID"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Get cast entry by ID
       security:
         - ApiKeyAuth: []
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '200':
+          description: Cast entry details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie_Cast'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
     
     put:
       tags:
         - relationships
-      summary: "❌ NOT IMPLEMENTED - Update cast entry"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Update cast entry
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -908,46 +1030,64 @@ paths:
             schema:
               $ref: '#/components/schemas/Movie_Cast'
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '200':
+          description: Cast entry updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie_Cast'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
     
     delete:
       tags:
         - relationships
-      summary: "❌ NOT IMPLEMENTED - Remove cast entry"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Remove cast entry
       security:
         - ApiKeyAuth: []
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '204':
+          description: Cast entry deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /movie_directors:
     get:
       tags:
         - relationships
-      summary: "❌ NOT IMPLEMENTED - List movie-director associations"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: List movie-director associations
       security:
         - ApiKeyAuth: []
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '200':
+          description: List of movie-director associations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movie_Director'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
     
     post:
       tags:
         - relationships
-      summary: "❌ NOT IMPLEMENTED - Add a director to a movie"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Add a director to a movie
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -957,8 +1097,18 @@ paths:
             schema:
               $ref: '#/components/schemas/Movie_Director'
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '201':
+          description: Association created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie_Director'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /movie_directors/{movie_director_id}:
     parameters:
@@ -971,40 +1121,46 @@ paths:
     delete:
       tags:
         - relationships
-      summary: "❌ NOT IMPLEMENTED - Remove movie-director association"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Remove movie-director association
       security:
         - ApiKeyAuth: []
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '204':
+          description: Association deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /movie_producers:
     get:
       tags:
         - relationships
-      summary: "❌ NOT IMPLEMENTED - List movie-producer associations"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: List movie-producer associations
       security:
         - ApiKeyAuth: []
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '200':
+          description: List of movie-producer associations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movie_Producer'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
     
     post:
       tags:
         - relationships
-      summary: "❌ NOT IMPLEMENTED - Add a producer to a movie"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Add a producer to a movie
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -1014,8 +1170,18 @@ paths:
             schema:
               $ref: '#/components/schemas/Movie_Producer'
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '201':
+          description: Association created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie_Producer'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /movie_producers/{movie_producer_id}:
     parameters:
@@ -1028,40 +1194,46 @@ paths:
     delete:
       tags:
         - relationships
-      summary: "❌ NOT IMPLEMENTED - Remove movie-producer association"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Remove movie-producer association
       security:
         - ApiKeyAuth: []
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '204':
+          description: Association deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /movie_studios:
     get:
       tags:
         - relationships
-      summary: "❌ NOT IMPLEMENTED - List movie-studio associations"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: List movie-studio associations
       security:
         - ApiKeyAuth: []
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '200':
+          description: List of movie-studio associations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movie_Studios'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
     
     post:
       tags:
         - relationships
-      summary: "❌ NOT IMPLEMENTED - Associate a studio with a movie"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Associate a studio with a movie
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -1071,8 +1243,18 @@ paths:
             schema:
               $ref: '#/components/schemas/Movie_Studios'
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '201':
+          description: Association created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie_Studios'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /movie_studios/{movie_studios_id}:
     parameters:
@@ -1085,16 +1267,20 @@ paths:
     delete:
       tags:
         - relationships
-      summary: "❌ NOT IMPLEMENTED - Remove movie-studio association"
-      description: |
-        **STATUS: NOT YET IMPLEMENTED**
-        
-        This endpoint is planned but not currently available.
+      summary: Remove movie-studio association
       security:
         - ApiKeyAuth: []
       responses:
-        '501':
-          $ref: '#/components/responses/NotImplemented'
+        '204':
+          description: Association deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
 tags:
   - name: default
