@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { db } from '../core/utilities/database';
-import { Movie, Genre, CastMember, MovieWithDetails } from '../types/movieTypes';
+import { db } from '../core/utilities/database.js';
+import { Movie, Genre, CastMember, MovieWithDetails } from '../types/movieTypes.js';
 
 /**
  * GET /movies - Get all movies with pagination and optional title search

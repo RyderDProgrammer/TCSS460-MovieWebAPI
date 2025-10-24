@@ -5,7 +5,7 @@ import {
   createStudio,
   updateStudio,
   deleteStudio
-} from '../controllers/studioController';
+} from '../controllers/studioController.js';
 
 const router: Router = express.Router();
 

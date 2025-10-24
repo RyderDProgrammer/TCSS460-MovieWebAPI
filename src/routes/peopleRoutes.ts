@@ -5,7 +5,7 @@ import {
   createPerson,
   updatePerson,
   deletePerson
-} from '../controllers/peopleController';
+} from '../controllers/peopleController.js';
 
 const router: Router = express.Router();
 

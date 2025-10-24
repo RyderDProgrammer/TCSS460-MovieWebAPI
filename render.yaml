@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: tcss460-moviewebapi
+    env: node
+    plan: free
+    buildCommand: "npm install --include=dev && npm run build"
+    startCommand: "npm start"
+    healthCheckPath: /health

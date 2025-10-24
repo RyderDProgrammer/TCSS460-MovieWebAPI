@@ -17,7 +17,7 @@ import {
   getAllMovieStudios,
   createMovieStudio,
   deleteMovieStudio
-} from '../controllers/relationshipController';
+} from '../controllers/relationshipController.js';
 
 const router: Router = express.Router();
 

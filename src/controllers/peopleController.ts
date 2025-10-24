@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { query, run } from '../core/utilities/database';
+import { query, run } from '../core/utilities/database.js';
 
 // GET /people - List all people
 export const getAllPeople = async (req: Request, res: Response): Promise<void> => {
