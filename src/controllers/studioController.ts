@@ -4,7 +4,7 @@ import { query, run } from '../core/utilities/database.js';
 // GET /studios - List all studios
 export const getAllStudios = async (req: Request, res: Response): Promise<void> => {
   try {
-    const sql = 'SELECT * FROM studios ORDER BY name';
+    const sql = 'SELECT * FROM studios ORDER BY studio_name';
     const studios = await query(sql, []);
 
     res.status(200).json(studios);

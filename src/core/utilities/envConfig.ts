@@ -23,7 +23,8 @@ const API_KEYS = process.env.API_KEYS ? process.env.API_KEYS.split(',') : [];
  * Middleware to validate API key from X-API-Key header
  */
 export const validateApiKey = (req: Request, res: Response, next: NextFunction): void => {
-  const apiKey = req.header('X-API-Key');
+  //const apiKey = req.header('X-API-Key');
+  const apiKey = req.header('X-API-Key') || req.query.apiKey as string;
 
   // Check if API key is present
   if (!apiKey) {

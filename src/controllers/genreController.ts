@@ -4,7 +4,7 @@ import { query, run } from '../core/utilities/database.js';
 // GET /genres - List all genres
 export const getAllGenres = async (req: Request, res: Response): Promise<void> => {
   try {
-    const sql = 'SELECT * FROM genres ORDER BY name';
+    const sql = 'SELECT * FROM genres ORDER BY genre_name';
     const genres = await query(sql, []);
 
     res.status(200).json(genres);

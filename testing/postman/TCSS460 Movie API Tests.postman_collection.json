@@ -5,6 +5,13 @@
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "31403545"
 	},
+
+    "variable": [
+      { "key": "base_url", "value": "http://localhost:3000", "type": "string" },
+      { "key": "api_key", "value": "movie_api_key_2025", "type": "string" },
+      { "key": "test_genre_id", "value": "", "type": "string" },
+      { "key": "test_movie_id", "value": "", "type": "string" }
+    ],
 	"item": [
 		{
 			"name": "Get Movies by Year - 2025",
@@ -242,6 +249,259 @@
 				}
 			},
 			"response": []
-		}
-	]
+		},
+      {
+        "name": "Genres",
+        "item": [
+          {
+            "name": "Get All Genres",
+            "request": {
+              "method": "GET",
+              "header": [
+                { "key": "X-API-Key", "value": "{{api_key}}", "type": "text" }
+              ],
+              "url": {
+                "raw": "{{base_url}}/genres",
+                "host": ["{{base_url}}"],
+                "path": ["genres"]
+              },
+              "description": "Returns all genres."
+            },
+            "response": []
+          },
+          {
+            "name": "Create Genre",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "if (pm.response.code === 201) {",
+                    "  var jsonData = pm.response.json();",
+                    "  pm.collectionVariables.set('test_genre_id', jsonData.genre_id);",
+                    "  pm.test('Genre created successfully', function () {",
+                    "    pm.expect(jsonData.genre_name).to.eql('Test Genre');",
+                    "  });",
+                    "}"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ],
+            "request": {
+              "method": "POST",
+              "header": [
+                { "key": "X-API-Key", "value": "{{api_key}}", "type": "text" },
+                { "key": "Content-Type", "value": "application/json", "type": "text" }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"genre_name\": \"Test Genre\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/genres",
+                "host": ["{{base_url}}"],
+                "path": ["genres"]
+              },
+              "description": "Creates a new genre for testing."
+            },
+            "response": []
+          },
+          {
+            "name": "Get Genre by ID",
+            "request": {
+              "method": "GET",
+              "header": [
+                { "key": "X-API-Key", "value": "{{api_key}}", "type": "text" }
+              ],
+              "url": {
+                "raw": "{{base_url}}/genres/{{test_genre_id}}",
+                "host": ["{{base_url}}"],
+                "path": ["genres", "{{test_genre_id}}"]
+              },
+              "description": "Get the genre we just created."
+            },
+            "response": []
+          },
+          {
+            "name": "Update Genre",
+            "request": {
+              "method": "PUT",
+              "header": [
+                { "key": "X-API-Key", "value": "{{api_key}}", "type": "text" },
+                { "key": "Content-Type", "value": "application/json", "type": "text" }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"genre_name\": \"Updated Test Genre\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/genres/{{test_genre_id}}",
+                "host": ["{{base_url}}"],
+                "path": ["genres", "{{test_genre_id}}"]
+              },
+              "description": "Update the test genre name."
+            },
+            "response": []
+          },
+          {
+            "name": "Delete Genre",
+            "request": {
+              "method": "DELETE",
+              "header": [
+                { "key": "X-API-Key", "value": "{{api_key}}", "type": "text" }
+              ],
+              "url": {
+                "raw": "{{base_url}}/genres/{{test_genre_id}}",
+                "host": ["{{base_url}}"],
+                "path": ["genres", "{{test_genre_id}}"]
+              },
+              "description": "Delete the test genre we created."
+            },
+            "response": []
+          },
+          {
+            "name": "Get Deleted Genre (Should Fail)",
+            "request": {
+              "method": "GET",
+              "header": [
+                { "key": "X-API-Key", "value": "{{api_key}}", "type": "text" }
+              ],
+              "url": {
+                "raw": "{{base_url}}/genres/{{test_genre_id}}",
+                "host": ["{{base_url}}"],
+                "path": ["genres", "{{test_genre_id}}"]
+              },
+              "description": "Should return 404 after deletion."
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "API Key Security",
+        "item": [
+          {
+            "name": "No API Key - Should Fail",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": { "raw": "{{base_url}}/movies", "host": ["{{base_url}}"], "path": ["movies"] },
+              "description": "Expected 401 Unauthorized when no API key sent."
+            },
+            "response": []
+          },
+          {
+            "name": "Invalid API Key - Should Fail",
+            "request": {
+              "method": "GET",
+              "header": [{ "key": "X-API-Key", "value": "invalid_key", "type": "text" }],
+              "url": { "raw": "{{base_url}}/movies", "host": ["{{base_url}}"], "path": ["movies"] },
+              "description": "Expected 401 Unauthorized with wrong API key."
+            },
+            "response": []
+          },
+          {
+            "name": "Valid API Key - Should Pass",
+            "request": {
+              "method": "GET",
+              "header": [{ "key": "X-API-Key", "value": "{{api_key}}", "type": "text" }],
+              "url": { "raw": "{{base_url}}/movies", "host": ["{{base_url}}"], "path": ["movies"] },
+              "description": "Expected 200 OK with valid key."
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "Full CRUD Flow",
+        "item": [
+          {
+            "name": "Create Movie (for flow)",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "if (pm.response.code === 201) {",
+                    "  var json = pm.response.json();",
+                    "  pm.collectionVariables.set('flow_movie_id', json.movie_id);",
+                    "  pm.test('Movie created', function() { pm.expect(json.title).to.eql('Flow Movie'); });",
+                    "}"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ],
+            "request": {
+              "method": "POST",
+              "header": [
+                { "key": "X-API-Key", "value": "{{api_key}}", "type": "text" },
+                { "key": "Content-Type", "value": "application/json", "type": "text" }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"title\": \"Flow Movie\",\n  \"release_date\": \"2024-10-01\",\n  \"runtime_in_minutes\": 120\n}"
+              },
+              "url": { "raw": "{{base_url}}/movies", "host": ["{{base_url}}"], "path": ["movies"] },
+              "description": "Creates a temporary movie for full CRUD test."
+            },
+            "response": []
+          },
+          {
+            "name": "Get Movie (flow)",
+            "request": {
+              "method": "GET",
+              "header": [{ "key": "X-API-Key", "value": "{{api_key}}", "type": "text" }],
+              "url": { "raw": "{{base_url}}/movies/{{flow_movie_id}}", "host": ["{{base_url}}"], "path": ["movies", "{{flow_movie_id}}"] },
+              "description": "Verify movie created in previous step."
+            },
+            "response": []
+          },
+          {
+            "name": "Delete Movie (flow)",
+            "request": {
+              "method": "DELETE",
+              "header": [{ "key": "X-API-Key", "value": "{{api_key}}", "type": "text" }],
+              "url": { "raw": "{{base_url}}/movies/{{flow_movie_id}}", "host": ["{{base_url}}"], "path": ["movies", "{{flow_movie_id}}"] },
+              "description": "Clean up test data."
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "Error and Edge Cases",
+        "item": [
+          {
+            "name": "Create Movie - Missing Title",
+            "request": {
+              "method": "POST",
+              "header": [
+                { "key": "X-API-Key", "value": "{{api_key}}", "type": "text" },
+                { "key": "Content-Type", "value": "application/json", "type": "text" }
+              ],
+              "body": { "mode": "raw", "raw": "{\n  \"release_date\": \"2024-12-01\"\n}" },
+              "url": { "raw": "{{base_url}}/movies", "host": ["{{base_url}}"], "path": ["movies"] },
+              "description": "Should return 400 Bad Request (missing title)."
+            },
+            "response": []
+          },
+          {
+            "name": "Update Movie - Invalid ID",
+            "request": {
+              "method": "PUT",
+              "header": [
+                { "key": "X-API-Key", "value": "{{api_key}}", "type": "text" },
+                { "key": "Content-Type", "value": "application/json", "type": "text" }
+              ],
+              "body": { "mode": "raw", "raw": "{\n  \"title\": \"Invalid Movie\"\n}" },
+              "url": { "raw": "{{base_url}}/movies/999999", "host": ["{{base_url}}"], "path": ["movies", "999999"] },
+              "description": "Should return 404 Not Found for non-existent movie."
+            },
+            "response": []
+          }
+        ]
+      }
+    ]
 }
