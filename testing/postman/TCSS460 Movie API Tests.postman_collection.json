@@ -1,507 +1,1806 @@
 {
-	"info": {
-		"_postman_id": "279604b4-055d-4226-9249-d6535870ce66",
-		"name": "TCSS460 Movie API Tests",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "31403545"
-	},
-
-    "variable": [
-      { "key": "base_url", "value": "http://localhost:3000", "type": "string" },
-      { "key": "api_key", "value": "movie_api_key_2025", "type": "string" },
-      { "key": "test_genre_id", "value": "", "type": "string" },
-      { "key": "test_movie_id", "value": "", "type": "string" }
-    ],
-	"item": [
-		{
-			"name": "Get Movies by Year - 2025",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							"",
-							"pm.test(\"Response has correct structure\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData).to.have.property('year');",
-							"    pm.expect(jsonData).to.have.property('count');",
-							"    pm.expect(jsonData).to.have.property('movies');",
-							"});",
-							"",
-							"pm.test(\"Movies is an array\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.movies).to.be.an('array');",
-							"});",
-							"",
-							"pm.test(\"Response contains movies\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.movies.length).to.be.above(0);",
-							"});",
-							"",
-							"pm.test(\"Year matches requested year\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.year).to.eql(\"2025\");",
-							"});",
-							"",
-							"pm.test(\"Count matches number of movies\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.count).to.eql(jsonData.movies.length);",
-							"});"
-						],
-						"type": "text/javascript",
-						"packages": {},
-						"requests": {}
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "https://tcss460-moviewebapi.onrender.com/moviesbyyear?year=2025",
-					"protocol": "https",
-					"host": [
-						"tcss460-moviewebapi",
-						"onrender",
-						"com"
-					],
-					"path": [
-						"moviesbyyear"
-					],
-					"query": [
-						{
-							"key": "year",
-							"value": "2025"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get Movies by Year - 2020",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							"",
-							"pm.test(\"Response has correct structure\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData).to.have.property('year');",
-							"    pm.expect(jsonData).to.have.property('count');",
-							"    pm.expect(jsonData).to.have.property('movies');",
-							"});",
-							"",
-							"pm.test(\"Movies is an array\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.movies).to.be.an('array');",
-							"});",
-							"",
-							"pm.test(\"Response contains movies\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.movies.length).to.be.above(0);",
-							"});",
-							"",
-							"pm.test(\"Year matches requested year\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    var requestedYear = pm.request.url.query.get(\"year\");",
-							"    pm.expect(jsonData.year).to.eql(requestedYear);",
-							"});",
-							"",
-							"pm.test(\"Count matches number of movies\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.count).to.eql(jsonData.movies.length);",
-							"});"
-						],
-						"type": "text/javascript",
-						"packages": {},
-						"requests": {}
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "https://tcss460-moviewebapi.onrender.com/moviesbyyear?year=2020",
-					"protocol": "https",
-					"host": [
-						"tcss460-moviewebapi",
-						"onrender",
-						"com"
-					],
-					"path": [
-						"moviesbyyear"
-					],
-					"query": [
-						{
-							"key": "year",
-							"value": "2020"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get Movies by Year - 2030 (No Results)",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							"",
-							"pm.test(\"Response has correct structure\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData).to.have.property('year');",
-							"    pm.expect(jsonData).to.have.property('count');",
-							"    pm.expect(jsonData).to.have.property('movies');",
-							"});",
-							"",
-							"pm.test(\"No movies found for future year\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.movies.length).to.eql(0);",
-							"    pm.expect(jsonData.count).to.eql(0);",
-							"});"
-						],
-						"type": "text/javascript",
-						"packages": {},
-						"requests": {}
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "https://tcss460-moviewebapi.onrender.com/moviesbyyear?year=2030",
-					"protocol": "https",
-					"host": [
-						"tcss460-moviewebapi",
-						"onrender",
-						"com"
-					],
-					"path": [
-						"moviesbyyear"
-					],
-					"query": [
-						{
-							"key": "year",
-							"value": "2030"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get Movies by Year - Invalid (Text)",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 400 (Bad Request)\", function () {",
-							"    pm.response.to.have.status(400);",
-							"});",
-							"",
-							"pm.test(\"Returns error message\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData).to.have.property('error');",
-							"});"
-						],
-						"type": "text/javascript",
-						"packages": {},
-						"requests": {}
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "https://tcss460-moviewebapi.onrender.com/moviesbyyear?year=abcd",
-					"protocol": "https",
-					"host": [
-						"tcss460-moviewebapi",
-						"onrender",
-						"com"
-					],
-					"path": [
-						"moviesbyyear"
-					],
-					"query": [
-						{
-							"key": "year",
-							"value": "abcd"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-      {
-        "name": "Genres",
-        "item": [
-          {
-            "name": "Get All Genres",
-            "request": {
-              "method": "GET",
-              "header": [
-                { "key": "X-API-Key", "value": "{{api_key}}", "type": "text" }
+  "info": {
+    "_postman_id": "279604b4-055d-4226-9249-d6535870ce66",
+    "name": "TCSS460 Movie API Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "31403545"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "api_key",
+      "value": "movie_api_key_2025",
+      "type": "string"
+    },
+    {
+      "key": "test_genre_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "test_movie_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "flow_movie_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "test_actor_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "test_director_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "health"
+          ]
+        },
+        "description": "Test health endpoint (no API key required)"
+      },
+      "response": []
+    },
+    {
+      "name": "Actors",
+      "item": [
+        {
+          "name": "Get All Actors (No API Key) - Should Fail",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test(\"Returns error message\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/actors",
+              "host": [
+                "{{base_url}}"
               ],
-              "url": {
-                "raw": "{{base_url}}/genres",
-                "host": ["{{base_url}}"],
-                "path": ["genres"]
-              },
-              "description": "Returns all genres."
+              "path": [
+                "actors"
+              ]
             },
-            "response": []
+            "description": "Expected 401 Unauthorized when no API key sent"
           },
-          {
-            "name": "Create Genre",
-            "event": [
+          "response": []
+        },
+        {
+          "name": "Get All Actors",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is an array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test(\"Actors have required properties\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.length > 0) {",
+                  "        pm.expect(jsonData[0]).to.have.property('actor_id');",
+                  "        pm.expect(jsonData[0]).to.have.property('actor_name');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
               {
-                "listen": "test",
-                "script": {
-                  "exec": [
-                    "if (pm.response.code === 201) {",
-                    "  var jsonData = pm.response.json();",
-                    "  pm.collectionVariables.set('test_genre_id', jsonData.genre_id);",
-                    "  pm.test('Genre created successfully', function () {",
-                    "    pm.expect(jsonData.genre_name).to.eql('Test Genre');",
-                    "  });",
-                    "}"
-                  ],
-                  "type": "text/javascript"
-                }
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
               }
             ],
-            "request": {
-              "method": "POST",
-              "header": [
-                { "key": "X-API-Key", "value": "{{api_key}}", "type": "text" },
-                { "key": "Content-Type", "value": "application/json", "type": "text" }
+            "url": {
+              "raw": "{{base_url}}/actors",
+              "host": [
+                "{{base_url}}"
               ],
-              "body": {
-                "mode": "raw",
-                "raw": "{\n  \"genre_name\": \"Test Genre\"\n}"
-              },
-              "url": {
-                "raw": "{{base_url}}/genres",
-                "host": ["{{base_url}}"],
-                "path": ["genres"]
-              },
-              "description": "Creates a new genre for testing."
+              "path": [
+                "actors"
+              ]
             },
-            "response": []
+            "description": "Get all actors with valid API key"
           },
-          {
-            "name": "Get Genre by ID",
-            "request": {
-              "method": "GET",
-              "header": [
-                { "key": "X-API-Key", "value": "{{api_key}}", "type": "text" }
-              ],
-              "url": {
-                "raw": "{{base_url}}/genres/{{test_genre_id}}",
-                "host": ["{{base_url}}"],
-                "path": ["genres", "{{test_genre_id}}"]
-              },
-              "description": "Get the genre we just created."
-            },
-            "response": []
-          },
-          {
-            "name": "Update Genre",
-            "request": {
-              "method": "PUT",
-              "header": [
-                { "key": "X-API-Key", "value": "{{api_key}}", "type": "text" },
-                { "key": "Content-Type", "value": "application/json", "type": "text" }
-              ],
-              "body": {
-                "mode": "raw",
-                "raw": "{\n  \"genre_name\": \"Updated Test Genre\"\n}"
-              },
-              "url": {
-                "raw": "{{base_url}}/genres/{{test_genre_id}}",
-                "host": ["{{base_url}}"],
-                "path": ["genres", "{{test_genre_id}}"]
-              },
-              "description": "Update the test genre name."
-            },
-            "response": []
-          },
-          {
-            "name": "Delete Genre",
-            "request": {
-              "method": "DELETE",
-              "header": [
-                { "key": "X-API-Key", "value": "{{api_key}}", "type": "text" }
-              ],
-              "url": {
-                "raw": "{{base_url}}/genres/{{test_genre_id}}",
-                "host": ["{{base_url}}"],
-                "path": ["genres", "{{test_genre_id}}"]
-              },
-              "description": "Delete the test genre we created."
-            },
-            "response": []
-          },
-          {
-            "name": "Get Deleted Genre (Should Fail)",
-            "request": {
-              "method": "GET",
-              "header": [
-                { "key": "X-API-Key", "value": "{{api_key}}", "type": "text" }
-              ],
-              "url": {
-                "raw": "{{base_url}}/genres/{{test_genre_id}}",
-                "host": ["{{base_url}}"],
-                "path": ["genres", "{{test_genre_id}}"]
-              },
-              "description": "Should return 404 after deletion."
-            },
-            "response": []
-          }
-        ]
-      },
-      {
-        "name": "API Key Security",
-        "item": [
-          {
-            "name": "No API Key - Should Fail",
-            "request": {
-              "method": "GET",
-              "header": [],
-              "url": { "raw": "{{base_url}}/movies", "host": ["{{base_url}}"], "path": ["movies"] },
-              "description": "Expected 401 Unauthorized when no API key sent."
-            },
-            "response": []
-          },
-          {
-            "name": "Invalid API Key - Should Fail",
-            "request": {
-              "method": "GET",
-              "header": [{ "key": "X-API-Key", "value": "invalid_key", "type": "text" }],
-              "url": { "raw": "{{base_url}}/movies", "host": ["{{base_url}}"], "path": ["movies"] },
-              "description": "Expected 401 Unauthorized with wrong API key."
-            },
-            "response": []
-          },
-          {
-            "name": "Valid API Key - Should Pass",
-            "request": {
-              "method": "GET",
-              "header": [{ "key": "X-API-Key", "value": "{{api_key}}", "type": "text" }],
-              "url": { "raw": "{{base_url}}/movies", "host": ["{{base_url}}"], "path": ["movies"] },
-              "description": "Expected 200 OK with valid key."
-            },
-            "response": []
-          }
-        ]
-      },
-      {
-        "name": "Full CRUD Flow",
-        "item": [
-          {
-            "name": "Create Movie (for flow)",
-            "event": [
+          "response": []
+        },
+        {
+          "name": "Create Actor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('test_actor_id', jsonData.actor_id);",
+                  "    pm.test('Actor created successfully', function() {",
+                  "        pm.expect(jsonData.actor_name).to.eql('Test Actor - Postman');",
+                  "    });",
+                  "    pm.test('Response has actor_id', function() {",
+                  "        pm.expect(jsonData).to.have.property('actor_id');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
               {
-                "listen": "test",
-                "script": {
-                  "exec": [
-                    "if (pm.response.code === 201) {",
-                    "  var json = pm.response.json();",
-                    "  pm.collectionVariables.set('flow_movie_id', json.movie_id);",
-                    "  pm.test('Movie created', function() { pm.expect(json.title).to.eql('Flow Movie'); });",
-                    "}"
-                  ],
-                  "type": "text/javascript"
-                }
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
               }
             ],
-            "request": {
-              "method": "POST",
-              "header": [
-                { "key": "X-API-Key", "value": "{{api_key}}", "type": "text" },
-                { "key": "Content-Type", "value": "application/json", "type": "text" }
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"actor_name\": \"Test Actor - Postman\",\n  \"date_of_birth\": \"1985-05-15\",\n  \"biography\": \"This is a test actor created via Postman for API testing\",\n  \"profile_url\": \"https://example.com/test-actor.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/actors",
+              "host": [
+                "{{base_url}}"
               ],
-              "body": {
-                "mode": "raw",
-                "raw": "{\n  \"title\": \"Flow Movie\",\n  \"release_date\": \"2024-10-01\",\n  \"runtime_in_minutes\": 120\n}"
+              "path": [
+                "actors"
+              ]
+            },
+            "description": "Create a new actor (saves actor_id for later tests)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Actor by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Actor has correct properties\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('actor_id');",
+                  "    pm.expect(jsonData).to.have.property('actor_name');",
+                  "    pm.expect(jsonData.actor_name).to.eql('Test Actor - Postman');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/actors/{{test_actor_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "actors",
+                "{{test_actor_id}}"
+              ]
+            },
+            "description": "Get the actor we just created"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Actor Movies",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  " pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has correct structure\", function () {",
+                  " var jsonData = pm.response.json();",
+                  " // Accept either the object structure or an empty array (valid when actor has no movies)",
+                  " if (Array.isArray(jsonData)) {",
+                  " pm.expect(jsonData).to.be.an('array');",
+                  " pm.expect(jsonData.length).to.eql(0);",
+                  " } else {",
+                  " pm.expect(jsonData).to.have.property('actor');",
+                  " pm.expect(jsonData).to.have.property('movies');",
+                  " pm.expect(jsonData.movies).to.be.an('array');",
+                  " }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/actors/{{test_actor_id}}/movies",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "actors",
+                "{{test_actor_id}}",
+                "movies"
+              ]
+            },
+            "description": "Get all movies for the test actor"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Actor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Actor updated successfully\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.actor_name).to.eql('Test Actor - UPDATED');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
               },
-              "url": { "raw": "{{base_url}}/movies", "host": ["{{base_url}}"], "path": ["movies"] },
-              "description": "Creates a temporary movie for full CRUD test."
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"actor_name\": \"Test Actor - UPDATED\",\n  \"date_of_birth\": \"1985-05-15\",\n  \"biography\": \"This actor has been updated via Postman\",\n  \"profile_url\": \"https://example.com/test-actor-updated.jpg\"\n}"
             },
-            "response": []
-          },
-          {
-            "name": "Get Movie (flow)",
-            "request": {
-              "method": "GET",
-              "header": [{ "key": "X-API-Key", "value": "{{api_key}}", "type": "text" }],
-              "url": { "raw": "{{base_url}}/movies/{{flow_movie_id}}", "host": ["{{base_url}}"], "path": ["movies", "{{flow_movie_id}}"] },
-              "description": "Verify movie created in previous step."
-            },
-            "response": []
-          },
-          {
-            "name": "Delete Movie (flow)",
-            "request": {
-              "method": "DELETE",
-              "header": [{ "key": "X-API-Key", "value": "{{api_key}}", "type": "text" }],
-              "url": { "raw": "{{base_url}}/movies/{{flow_movie_id}}", "host": ["{{base_url}}"], "path": ["movies", "{{flow_movie_id}}"] },
-              "description": "Clean up test data."
-            },
-            "response": []
-          }
-        ]
-      },
-      {
-        "name": "Error and Edge Cases",
-        "item": [
-          {
-            "name": "Create Movie - Missing Title",
-            "request": {
-              "method": "POST",
-              "header": [
-                { "key": "X-API-Key", "value": "{{api_key}}", "type": "text" },
-                { "key": "Content-Type", "value": "application/json", "type": "text" }
+            "url": {
+              "raw": "{{base_url}}/actors/{{test_actor_id}}",
+              "host": [
+                "{{base_url}}"
               ],
-              "body": { "mode": "raw", "raw": "{\n  \"release_date\": \"2024-12-01\"\n}" },
-              "url": { "raw": "{{base_url}}/movies", "host": ["{{base_url}}"], "path": ["movies"] },
-              "description": "Should return 400 Bad Request (missing title)."
+              "path": [
+                "actors",
+                "{{test_actor_id}}"
+              ]
             },
-            "response": []
+            "description": "Update the actor we created"
           },
-          {
-            "name": "Update Movie - Invalid ID",
-            "request": {
-              "method": "PUT",
-              "header": [
-                { "key": "X-API-Key", "value": "{{api_key}}", "type": "text" },
-                { "key": "Content-Type", "value": "application/json", "type": "text" }
+          "response": []
+        },
+        {
+          "name": "Delete Actor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 204\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/actors/{{test_actor_id}}",
+              "host": [
+                "{{base_url}}"
               ],
-              "body": { "mode": "raw", "raw": "{\n  \"title\": \"Invalid Movie\"\n}" },
-              "url": { "raw": "{{base_url}}/movies/999999", "host": ["{{base_url}}"], "path": ["movies", "999999"] },
-              "description": "Should return 404 Not Found for non-existent movie."
+              "path": [
+                "actors",
+                "{{test_actor_id}}"
+              ]
             },
-            "response": []
-          }
-        ]
-      }
-    ]
+            "description": "Delete the test actor"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Deleted Actor (Should Fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/actors/{{test_actor_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "actors",
+                "{{test_actor_id}}"
+              ]
+            },
+            "description": "Should return 404"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Directors",
+      "item": [
+        {
+          "name": "Get All Directors (No API Key) - Should Fail",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/directors",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "directors"
+              ]
+            },
+            "description": "Expected 401 Unauthorized"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Directors",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is an array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/directors",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "directors"
+              ]
+            },
+            "description": "Get all directors"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Director",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('test_director_id', jsonData.director_id);",
+                  "    pm.test('Director created', function() {",
+                  "        pm.expect(jsonData.director_name).to.eql('Test Director - Postman');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"director_name\": \"Test Director - Postman\",\n  \"date_of_birth\": \"1975-08-20\",\n  \"biography\": \"Test director for API testing\",\n  \"profile_url\": \"https://example.com/test-director.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/directors",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "directors"
+              ]
+            },
+            "description": "Create a new director"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Director by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Director has correct name\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.director_name).to.eql('Test Director - Postman');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/directors/{{test_director_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "directors",
+                "{{test_director_id}}"
+              ]
+            },
+            "description": "Get the director we created"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Director Movies",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has movies array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.movies).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/directors/{{test_director_id}}/movies",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "directors",
+                "{{test_director_id}}",
+                "movies"
+              ]
+            },
+            "description": "Get movies for director"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Director",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"director_name\": \"Test Director - UPDATED\",\n  \"date_of_birth\": \"1975-08-20\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/directors/{{test_director_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "directors",
+                "{{test_director_id}}"
+              ]
+            },
+            "description": "Update the director"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Director",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/directors/{{test_director_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "directors",
+                "{{test_director_id}}"
+              ]
+            },
+            "description": "Delete the test director"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Deleted Director (Should Fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/directors/{{test_director_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "directors",
+                "{{test_director_id}}"
+              ]
+            },
+            "description": "Should return 404"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Genres",
+      "item": [
+        {
+          "name": "Get All Genres",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/genres",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "genres"
+              ]
+            },
+            "description": "Returns all genres."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Genre",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.collectionVariables.set('test_genre_id', jsonData.genre_id);",
+                  "  pm.test('Genre created successfully', function () {",
+                  "    pm.expect(jsonData.genre_name).to.eql('Test Genre');",
+                  "  });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"genre_name\": \"Test Genre\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/genres",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "genres"
+              ]
+            },
+            "description": "Creates a new genre for testing."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Genre by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/genres/{{test_genre_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "genres",
+                "{{test_genre_id}}"
+              ]
+            },
+            "description": "Get the genre we just created."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Genre",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"genre_name\": \"Updated Test Genre\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/genres/{{test_genre_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "genres",
+                "{{test_genre_id}}"
+              ]
+            },
+            "description": "Update the test genre name."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Genre",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/genres/{{test_genre_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "genres",
+                "{{test_genre_id}}"
+              ]
+            },
+            "description": "Delete the test genre we created."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Deleted Genre (Should Fail)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/genres/{{test_genre_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "genres",
+                "{{test_genre_id}}"
+              ]
+            },
+            "description": "Should return 404 after deletion."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "API Key Security",
+      "item": [
+        {
+          "name": "No API Key - Should Fail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/movies",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "movies"
+              ]
+            },
+            "description": "Expected 401 Unauthorized when no API key sent."
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid API Key - Should Fail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "invalid_key",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/movies",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "movies"
+              ]
+            },
+            "description": "Expected 401 Unauthorized with wrong API key."
+          },
+          "response": []
+        },
+        {
+          "name": "Valid API Key - Should Pass",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/movies",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "movies"
+              ]
+            },
+            "description": "Expected 200 OK with valid key."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Full CRUD Flow",
+      "item": [
+        {
+          "name": "Create Movie (for flow)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var json = pm.response.json();",
+                  "  pm.collectionVariables.set('flow_movie_id', json.movie_id);",
+                  "  pm.test('Movie created', function() { pm.expect(json.title).to.eql('Flow Movie'); });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Flow Movie\",\n  \"release_date\": \"2024-10-01\",\n  \"runtime_in_minutes\": 120\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/movies",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "movies"
+              ]
+            },
+            "description": "Creates a temporary movie for full CRUD test."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Movie (flow)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/movies/{{flow_movie_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "movies",
+                "{{flow_movie_id}}"
+              ]
+            },
+            "description": "Verify movie created in previous step."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Movie (flow)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/movies/{{flow_movie_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "movies",
+                "{{flow_movie_id}}"
+              ]
+            },
+            "description": "Clean up test data."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Error and Edge Cases",
+      "item": [
+        {
+          "name": "Create Movie - Missing Title",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"release_date\": \"2024-12-01\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/movies",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "movies"
+              ]
+            },
+            "description": "Should return 400 Bad Request (missing title)."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Movie - Invalid ID",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Invalid Movie\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/movies/999999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "movies",
+                "999999"
+              ]
+            },
+            "description": "Should return 404 Not Found for non-existent movie."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Non-Existent Movie (Should Fail)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/movies/999999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "movies",
+                "999999"
+              ]
+            },
+            "description": "Should return 404 Not Found"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Actor - Missing Name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Returns error message\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date_of_birth\": \"1985-05-15\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/actors",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "actors"
+              ]
+            },
+            "description": "Should return 400 - missing actor_name"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Actor - Invalid ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"actor_name\": \"Invalid\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/actors/999999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "actors",
+                "999999"
+              ]
+            },
+            "description": "Should return 404"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Actor Movies - Invalid ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/actors/999999/movies",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "actors",
+                "999999",
+                "movies"
+              ]
+            },
+            "description": "Should return 404"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Director - Missing Name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Returns error message\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date_of_birth\": \"1975-08-20\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/directors",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "directors"
+              ]
+            },
+            "description": "Should return 400 - missing director_name"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Director - Invalid ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"director_name\": \"Invalid\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/directors/999999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "directors",
+                "999999"
+              ]
+            },
+            "description": "Should return 404"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Director Movies - Invalid ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/directors/999999/movies",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "directors",
+                "999999",
+                "movies"
+              ]
+            },
+            "description": "Should return 404"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Movies",
+      "item": [
+        {
+          "name": "Get All Movies (No API Key) - Should Fail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/movies?page=1&pageSize=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "movies"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "This should return 401 Unauthorized"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Movies",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/movies?page=1&pageSize=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "movies"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get paginated list of movies"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Movies - With Search",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/movies?q=Batman&page=1&pageSize=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "movies"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "Batman"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Search for movies by title"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Movie by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/movies/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "movies",
+                "1"
+              ]
+            },
+            "description": "Get detailed movie information including genres and cast"
+          },
+          "response": []
+        },
+        {
+          "name": "Create New Movie",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('test_movie_id', jsonData.movie_id);",
+                  "    pm.test('Movie created successfully', function() {",
+                  "        pm.expect(jsonData.title).to.eql('Test Movie - Postman');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test Movie - Postman\",\n  \"original_title\": \"Test Movie - Postman\",\n  \"release_date\": \"2024-12-01\",\n  \"runtime_in_minutes\": 120,\n  \"overview\": \"This is a test movie created via Postman to test the API\",\n  \"budget\": 50000000,\n  \"revenue\": 150000000,\n  \"mpa_rating\": \"PG-13\",\n  \"collection\": \"Test Collection\",\n  \"poster_url\": \"https://example.com/poster.jpg\",\n  \"backdrop_url\": \"https://example.com/backdrop.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/movies",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "movies"
+              ]
+            },
+            "description": "Create a new movie (saves movie_id for later tests)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Created Movie by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/movies/{{test_movie_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "movies",
+                "{{test_movie_id}}"
+              ]
+            },
+            "description": "Get the movie we just created (uses saved movie_id)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Movie",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test Movie - UPDATED\",\n  \"original_title\": \"Test Movie - UPDATED\",\n  \"release_date\": \"2024-12-15\",\n  \"runtime_in_minutes\": 135,\n  \"overview\": \"This movie has been updated via Postman\",\n  \"budget\": 60000000,\n  \"revenue\": 180000000,\n  \"mpa_rating\": \"R\",\n  \"collection\": \"Test Collection - Updated\",\n  \"poster_url\": \"https://example.com/poster-new.jpg\",\n  \"backdrop_url\": \"https://example.com/backdrop-new.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/movies/{{test_movie_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "movies",
+                "{{test_movie_id}}"
+              ]
+            },
+            "description": "Update the movie we created"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Updated Movie",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/movies/{{test_movie_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "movies",
+                "{{test_movie_id}}"
+              ]
+            },
+            "description": "Verify the movie was updated"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Movie",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/movies/{{test_movie_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "movies",
+                "{{test_movie_id}}"
+              ]
+            },
+            "description": "Delete the test movie we created"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Deleted Movie (Should Fail)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/movies/{{test_movie_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "movies",
+                "{{test_movie_id}}"
+              ]
+            },
+            "description": "Should return 404 - movie was deleted"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
 }
