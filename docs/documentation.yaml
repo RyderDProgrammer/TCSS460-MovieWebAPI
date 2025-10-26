@@ -4,7 +4,7 @@ info:
   version: "1.0.0"
   description: |
     REST API for the Movies dataset. Routes are protected by an API key header `X-API-Key`.
-    This API provides full CRUD operations for Movies, Genres, Studios, People, and relationship tables (cast, directors, producers, genres, studios).
+    This API provides full CRUD operations for Movies, Genres, Studios, Actors, Directors, and relationship tables (cast, directors, producers, genres, studios).
 
     **Published Web API**  
     Hosted at: [https://tcss460-moviewebapi.onrender.com](https://tcss460-moviewebapi.onrender.com)
@@ -94,7 +94,7 @@ components:
           type: integer
           description: Unique identifier for the genre
           example: 1
-        name:
+        genre_name:
           type: string
           description: Genre name
           example: "Action"
@@ -106,36 +106,60 @@ components:
           type: integer
           description: Unique identifier for the studio
           example: 10
-        name:
+        studio_name:
           type: string
           description: Studio name
           example: "Warner Bros."
-        country:
+        studio_country:
           type: string
           description: Country where studio is based
           example: "USA"
-        logo_url:
+        studio_logo:
           type: string
           format: uri
           description: URL to studio logo
           example: "https://studio.example.com/logos/warner.png"
 
-    Person:
+    Actor:
       type: object
       properties:
-        person_id:
+        actor_id:
           type: integer
-          description: Unique identifier for the person
-          example: 501
-        name:
+          description: Unique identifier for the actor
+          example: 900
+        actor_name:
           type: string
-          description: Full name
-          example: "Christopher Nolan"
+          description: Full name of the actor
+          example: "Leonardo DiCaprio"
         profile_url:
           type: string
           format: uri
           description: URL to profile photo
-          example: "https://image.tmdb.org/t/p/w300/zzz.jpg"
+          example: "https://image.tmdb.org/t/p/w300/actor.jpg"
+
+    Director:
+      type: object
+      properties:
+        director_id:
+          type: integer
+          description: Unique identifier for the director
+          example: 501
+        director_name:
+          type: string
+          description: Full name of the director
+          example: "Christopher Nolan"
+
+    Producer:
+      type: object
+      properties:
+        producer_id:
+          type: integer
+          description: Unique identifier for the producer
+          example: 602
+        producer_name:
+          type: string
+          description: Full name of the producer
+          example: "Emma Thomas"
 
     Movie_Genre:
       type: object
@@ -156,38 +180,34 @@ components:
           description: Reference to genre
           example: 1
 
-    Movie_Cast:
+    Cast:
       type: object
       required:
         - movie_id
-        - person_id
+        - actor_id
       properties:
-        uniqueId:
+        cast_id:
           type: integer
-          description: Primary key for the movie_cast row
+          description: Primary key for the cast row
           example: 3001
         movie_id:
           type: integer
           description: Reference to movie
           example: 123
-        person_id:
+        actor_id:
           type: integer
-          description: Reference to person (actor)
+          description: Reference to actor
           example: 900
         character_name:
           type: string
           description: Name of character played
           example: "Dom Cobb"
-        cast_order:
-          type: integer
-          description: Billing order (1 = top billing)
-          example: 1
 
     Movie_Director:
       type: object
       required:
         - movie_id
-        - person_id
+        - director_id
       properties:
         movie_director_id:
           type: integer
@@ -197,16 +217,16 @@ components:
           type: integer
           description: Reference to movie
           example: 123
-        person_id:
+        director_id:
           type: integer
-          description: Reference to person (director)
+          description: Reference to director
           example: 501
 
     Movie_Producer:
       type: object
       required:
         - movie_id
-        - person_id
+        - producer_id
       properties:
         movie_producer_id:
           type: integer
@@ -216,9 +236,9 @@ components:
           type: integer
           description: Reference to movie
           example: 123
-        person_id:
+        producer_id:
           type: integer
-          description: Reference to person (producer)
+          description: Reference to producer
           example: 602
 
     Movie_Studios:
@@ -227,7 +247,7 @@ components:
         - movie_id
         - studio_id
       properties:
-        movie_studios_id:
+        movie_studio_id:
           type: integer
           description: Unique identifier for this association
           example: 6001
@@ -743,23 +763,23 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/ServerError'
-
-  /people:
+          
+    /actors:
     get:
       tags:
-        - people
-      summary: List all people
+        - actors
+      summary: List all actors
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: List of people
+          description: List of actors
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Person'
+                  $ref: '#/components/schemas/Actor'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
@@ -767,8 +787,8 @@ paths:
     
     post:
       tags:
-        - people
-      summary: Create a new person
+        - actors
+      summary: Create a new actor
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -776,14 +796,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Person'
+              $ref: '#/components/schemas/Actor'
       responses:
         '201':
-          description: Person created successfully
+          description: Actor created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Person'
+                $ref: '#/components/schemas/Actor'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -791,27 +811,27 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
 
-  /people/{person_id}:
+  /actors/{actor_id}:
     parameters:
       - in: path
-        name: person_id
+        name: actor_id
         required: true
         schema:
           type: integer
     
     get:
       tags:
-        - people
-      summary: Get person by ID
+        - actors
+      summary: Get actor by ID
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: Person details
+          description: Actor details
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Person'
+                $ref: '#/components/schemas/Actor'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -823,8 +843,8 @@ paths:
     
     put:
       tags:
-        - people
-      summary: Update a person
+        - actors
+      summary: Update an actor
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -832,14 +852,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Person'
+              $ref: '#/components/schemas/Actor'
       responses:
         '200':
-          description: Person updated successfully
+          description: Actor updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Person'
+                $ref: '#/components/schemas/Actor'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -851,19 +871,211 @@ paths:
     
     delete:
       tags:
-        - people
-      summary: Delete a person
+        - actors
+      summary: Delete an actor
       security:
         - ApiKeyAuth: []
       responses:
         '204':
-          description: Person deleted successfully
+          description: Actor deleted successfully
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /actors/{actor_id}/movies:
+    parameters:
+      - in: path
+        name: actor_id
+        required: true
+        schema:
+          type: integer
+    
+    get:
+      tags:
+        - actors
+      summary: Get all movies for an actor
+      description: Returns all movies featuring the specified actor, including character names
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: List of movies for the actor
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/Movie'
+                    - type: object
+                      properties:
+                        character_name:
+                          type: string
+                          description: Character played in this movie
+                          example: "Dom Cobb"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /directors:
+    get:
+      tags:
+        - directors
+      summary: List all directors
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: List of directors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Director'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    
+    post:
+      tags:
+        - directors
+      summary: Create a new director
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Director'
+      responses:
+        '201':
+          description: Director created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Director'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /directors/{director_id}:
+    parameters:
+      - in: path
+        name: director_id
+        required: true
+        schema:
+          type: integer
+    
+    get:
+      tags:
+        - directors
+      summary: Get director by ID
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Director details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Director'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    
+    put:
+      tags:
+        - directors
+      summary: Update a director
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Director'
+      responses:
+        '200':
+          description: Director updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Director'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    
+    delete:
+      tags:
+        - directors
+      summary: Delete a director
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '204':
+          description: Director deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /directors/{director_id}/movies:
+    parameters:
+      - in: path
+        name: director_id
+        required: true
+        schema:
+          type: integer
+    
+    get:
+      tags:
+        - directors
+      summary: Get all movies for a director
+      description: Returns all movies directed by the specified director
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: List of movies for the director
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movie'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/ServerError'
 
@@ -940,7 +1152,7 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
 
-  /movie_cast:
+  /cast:
     get:
       tags:
         - relationships
@@ -955,7 +1167,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Movie_Cast'
+                  $ref: '#/components/schemas/Cast'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
@@ -972,14 +1184,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Movie_Cast'
+              $ref: '#/components/schemas/Cast'
       responses:
         '201':
           description: Cast entry created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Movie_Cast'
+                $ref: '#/components/schemas/Cast'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -987,10 +1199,10 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
 
-  /movie_cast/{uniqueId}:
+  /cast/{cast_id}:
     parameters:
       - in: path
-        name: uniqueId
+        name: cast_id
         required: true
         schema:
           type: integer
@@ -1007,7 +1219,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Movie_Cast'
+                $ref: '#/components/schemas/Cast'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1028,14 +1240,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Movie_Cast'
+              $ref: '#/components/schemas/Cast'
       responses:
         '200':
           description: Cast entry updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Movie_Cast'
+                $ref: '#/components/schemas/Cast'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1256,10 +1468,10 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
 
-  /movie_studios/{movie_studios_id}:
+  /movie_studios/{movie_studio_id}:
     parameters:
       - in: path
-        name: movie_studios_id
+        name: movie_studio_id
         required: true
         schema:
           type: integer
@@ -1291,7 +1503,9 @@ tags:
     description: Genre resource operations
   - name: studios
     description: Studio resource operations
-  - name: people
-    description: Person resource operations
+  - name: actors
+    description: Actor resource operations
+  - name: directors
+    description: Director resource operations
   - name: relationships
     description: Join table operations (cast, producers, directors, genres, studios)
