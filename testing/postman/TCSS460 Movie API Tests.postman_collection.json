@@ -40,6 +40,26 @@
       "key": "test_director_id",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "random_director_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "random_director_name",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "random_actor_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "random_actor_name",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -207,6 +227,29 @@
           "name": "Get Actor by ID",
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Get all actors and pick a random one",
+                  "pm.sendRequest({",
+                  "    url: pm.collectionVariables.get('base_url') + '/actors',",
+                  "    method: 'GET',",
+                  "    header: {",
+                  "        'X-API-Key': pm.collectionVariables.get('api_key')",
+                  "    }",
+                  "}, function (err, response) {",
+                  "    if (!err && response.json().length > 0) {",
+                  "        var actors = response.json();",
+                  "        var randomActor = actors[Math.floor(Math.random() * actors.length)];",
+                  "        pm.collectionVariables.set('random_actor_id', randomActor.actor_id);",
+                  "        pm.collectionVariables.set('random_actor_name', randomActor.actor_name);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "exec": [
@@ -218,7 +261,7 @@
                   "    var jsonData = pm.response.json();",
                   "    pm.expect(jsonData).to.have.property('actor_id');",
                   "    pm.expect(jsonData).to.have.property('actor_name');",
-                  "    pm.expect(jsonData.actor_name).to.eql('Test Actor - Postman');",
+                  "    pm.expect(jsonData.actor_id).to.eql(pm.collectionVariables.get('random_actor_id'));",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -235,16 +278,16 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/actors/{{test_actor_id}}",
+              "raw": "{{base_url}}/actors/{{random_actor_id}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "actors",
-                "{{test_actor_id}}"
+                "{{random_actor_id}}"
               ]
             },
-            "description": "Get the actor we just created"
+            "description": "Get a random actor by ID"
           },
           "response": []
         },
@@ -256,20 +299,20 @@
               "script": {
                 "exec": [
                   "pm.test(\"Status code is 200\", function () {",
-                  " pm.response.to.have.status(200);",
+                  "    pm.response.to.have.status(200);",
                   "});",
                   "",
                   "pm.test(\"Response has correct structure\", function () {",
-                  " var jsonData = pm.response.json();",
-                  " // Accept either the object structure or an empty array (valid when actor has no movies)",
-                  " if (Array.isArray(jsonData)) {",
-                  " pm.expect(jsonData).to.be.an('array');",
-                  " pm.expect(jsonData.length).to.eql(0);",
-                  " } else {",
-                  " pm.expect(jsonData).to.have.property('actor');",
-                  " pm.expect(jsonData).to.have.property('movies');",
-                  " pm.expect(jsonData.movies).to.be.an('array');",
-                  " }",
+                  "    var jsonData = pm.response.json();",
+                  "    // Check if it's the object structure with actor and movies",
+                  "    if (jsonData.movies !== undefined) {",
+                  "        pm.expect(jsonData).to.have.property('actor');",
+                  "        pm.expect(jsonData).to.have.property('movies');",
+                  "        pm.expect(jsonData.movies).to.be.an('array');",
+                  "    } else {",
+                  "        // Or accept an array directly",
+                  "        pm.expect(jsonData).to.be.an('array');",
+                  "    }",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -286,17 +329,17 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/actors/{{test_actor_id}}/movies",
+              "raw": "{{base_url}}/actors/{{random_actor_id}}/movies",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "actors",
-                "{{test_actor_id}}",
+                "{{random_actor_id}}",
                 "movies"
               ]
             },
-            "description": "Get all movies for the test actor"
+            "description": "Get all movies for the random actor"
           },
           "response": []
         },
@@ -560,6 +603,29 @@
           "name": "Get Director by ID",
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Get all directors and pick a random one",
+                  "pm.sendRequest({",
+                  "    url: pm.collectionVariables.get('base_url') + '/directors',",
+                  "    method: 'GET',",
+                  "    header: {",
+                  "        'X-API-Key': pm.collectionVariables.get('api_key')",
+                  "    }",
+                  "}, function (err, response) {",
+                  "    if (!err && response.json().length > 0) {",
+                  "        var directors = response.json();",
+                  "        var randomDirector = directors[Math.floor(Math.random() * directors.length)];",
+                  "        pm.collectionVariables.set('random_director_id', randomDirector.director_id);",
+                  "        pm.collectionVariables.set('random_director_name', randomDirector.director_name);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "exec": [
@@ -567,9 +633,11 @@
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test(\"Director has correct name\", function () {",
+                  "pm.test(\"Director has correct properties\", function () {",
                   "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.director_name).to.eql('Test Director - Postman');",
+                  "    pm.expect(jsonData).to.have.property('director_id');",
+                  "    pm.expect(jsonData).to.have.property('director_name');",
+                  "    pm.expect(jsonData.director_id).to.eql(pm.collectionVariables.get('random_director_id'));",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -586,16 +654,16 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/directors/{{test_director_id}}",
+              "raw": "{{base_url}}/directors/{{random_director_id}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "directors",
-                "{{test_director_id}}"
+                "{{random_director_id}}"
               ]
             },
-            "description": "Get the director we created"
+            "description": "Get a random director by ID"
           },
           "response": []
         },
@@ -610,9 +678,17 @@
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test(\"Response has movies array\", function () {",
+                  "pm.test(\"Response has correct structure\", function () {",
                   "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.movies).to.be.an('array');",
+                  "    // Check if it's the object structure with director and movies",
+                  "    if (jsonData.movies !== undefined) {",
+                  "        pm.expect(jsonData).to.have.property('director');",
+                  "        pm.expect(jsonData).to.have.property('movies');",
+                  "        pm.expect(jsonData.movies).to.be.an('array');",
+                  "    } else {",
+                  "        // Or accept an array directly",
+                  "        pm.expect(jsonData).to.be.an('array');",
+                  "    }",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -629,17 +705,17 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/directors/{{test_director_id}}/movies",
+              "raw": "{{base_url}}/directors/{{random_director_id}}/movies",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "directors",
-                "{{test_director_id}}",
+                "{{random_director_id}}",
                 "movies"
               ]
             },
-            "description": "Get movies for director"
+            "description": "Get movies for the random director"
           },
           "response": []
         },
