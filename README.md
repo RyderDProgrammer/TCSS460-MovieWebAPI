@@ -176,4 +176,53 @@ Hosted on **Render**, auto-deploys on pushes to the `main` branch.
 
 ---
 
-**Built with 🎬, ☁️, and 💻 by Group 4 – Movies Dataset Web API Team**  
+# 🚀 **Beta II Sprint**
+
+## 🌐 Hosted Web API
+
+**Live URL:** [https://tcss460-moviewebapi.onrender.com](https://tcss460-moviewebapi.onrender.com)
+Hosted on **Render**, auto-deploys on pushes to the `main` branch.
+
+---
+
+## 🧩 Beta II Sprint Contribution
+
+| **Team Member** | **Contribution** |
+|------------------|------------------|
+| **Ryder DeBack** | Refactored the people routes into separate actors and directors controllers/routes for better organization. Added comprehensive Postman tests for directors and actors endpoints. Fixed index routing issues and updated documentation.yaml to reflect the new route structure. |
+| **Kevin Nam Hoang** | Fixed critical Render deployment issues and build configurations to ensure the API deploys successfully. Debugged and resolved deployment errors that prevented the application from running on the cloud platform. |
+| **Faisal Nur** | Updated .gitignore to exclude the dist/ folder from version control, preventing build artifacts from being committed. Managed the README.md documentation for Beta II Sprint submission. |
+| **Mutahar Wafayee** | Added new Postman tests for the genre route and fixed genre route implementation to ensure proper functionality and testing coverage. |
+
+---
+
+## 🗓️ Beta II Sprint Meetings
+
+- **October 22 – Initial Planning Meeting (Discord):**
+  The team met on Discord to discuss the Beta II Sprint assignment requirements and determine what needed to be worked on. Tasks were identified and initial planning was completed.
+  Ryder emailed the professor to discuss assignment clarifications and requirements.
+
+- **October 24 – Task Assignment Meeting (Discord):**
+  The team reconvened on Discord to split up the assignment tasks among team members. Responsibilities were divided based on each member's strengths and availability.
+
+- **October 26 – Final Review (Discord & GitHub):**
+  The team conducted a final review on Discord and GitHub to ensure all tasks were completed and tested before submission.
+
+**Primary Communication:** Discord text channels for meetings, discussions, and file sharing.
+**Secondary Communication:** GitHub commits and pull requests.
+
+---
+
+## 💬 Beta II Sprint Comments
+
+- Successfully refactored the people routes into separate actors and directors endpoints, improving code organization and API clarity.
+- Render deployment was stabilized after resolving build configuration issues - the API now deploys reliably on pushes to main branch.
+- Comprehensive Postman test coverage was added for actors, directors, and genre routes to ensure endpoint functionality.
+- The .gitignore was updated to prevent build artifacts (dist/) from cluttering the repository.
+- All routes are properly documented in documentation.yaml and accessible via the hosted API.
+- TypeScript migration was completed, improving type safety and code quality across the project.
+- Future work will focus on expanding CRUD operations for all entity types and implementing additional filtering/search capabilities.
+
+---
+
+**Built with 🎬, ☁️, and 💻 by Group 4 – Movies Dataset Web API Team**
