@@ -225,4 +225,37 @@ Hosted on **Render**, auto-deploys on pushes to the `main` branch.
 
 ---
 
-**Built with 🎬, ☁️, and 💻 by Group 4 – Movies Dataset Web API Team**
+## 🚀 Production Sprint
+
+## 🌐 Hosted Links
+
+**Render Data Web API**: https://tcss460-moviewebapi.onrender.com
+
+**Heroku Credentials Web API**: https://<heroku-credentials-name>.herokuapp.com
+
+## 🧩 Production Sprint Contribution
+| **Team Member** |	**Contribution** |
+|------------------|------------------|
+| **Ryder DeBack** | Completed most of the updated API documentation work and confirmed accuracy of route behavior vs swagger definitions for production sprint. |
+|**Faisal Nur**|	Performed all testing and verification using Postman. Created /testing/Postman/postman.json full coverage export for submission. |
+|**Mutahar Wafayee** |	Designed and implemented the majority of the Credentials API. Completed logic + routing and ensured successful database integration. |
+| **Kevin Nam Hoang** |	Updated README.md with Production Sprint required sections, updated hosted links, and finalized deliverable structure for sprint submission. |
+
+## 🗓️ Production Sprint Meetings
+
+- **Oct 29 – Planning (Discord):**
+  The team met through Discord to walk through what we needed to finish for our Web API and what needs to be done for the credentials.
+
+- **Oct 30 – Testing + Documentation Review (Discord):**
+  Faisal walked through Postman coverage and each member validated test success. Mutahar finished API docs alignment for production.
+
+- **Nov 2 – Final Wrap Review (Discord + GitHub):**
+ All members validated Heroku live deployment URLs, confirmed /api-docs returned correctly, and README finalization was completed prior to submission.
+
+**Primary Communication:** Discord text channel
+
+## 💬 Production Sprint Comments
+
+- Postman export confirms all currently implemented routes function correctly.
+
+- /api-docs is now standardized across Render + Heroku deploys which will simplify final demo evaluation.
