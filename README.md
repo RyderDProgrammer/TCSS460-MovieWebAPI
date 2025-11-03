@@ -229,9 +229,9 @@ Hosted on **Render**, auto-deploys on pushes to the `main` branch.
 
 ## 🌐 Hosted Links
 
-**Render Data Web API**: https://tcss460-moviewebapi.onrender.com
+**Render Movie Web API**: https://tcss460-moviewebapi.onrender.com
 
-**Heroku Credentials Web API**: https://<heroku-credentials-name>.herokuapp.com
+**Heroku Credentials Web API**: https://tcss460-credentials-api-1df52bcf213d.herokuapp.com/api-docs/
 
 ## 🧩 Production Sprint Contribution
 | **Team Member** |	**Contribution** |
