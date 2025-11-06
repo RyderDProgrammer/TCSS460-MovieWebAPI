@@ -11,3 +11,4 @@ data/movies.db
 data/movies.db-shm
 data/movies.db-wal
 dist/
+.claude/
