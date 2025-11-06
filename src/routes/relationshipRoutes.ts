@@ -47,6 +47,22 @@ router.put('/movie_cast/:uniqueId', updateMovieCast);
 // DELETE /movie_cast/:uniqueId - Remove cast entry
 router.delete('/movie_cast/:uniqueId', deleteMovieCast);
 
+// ===== CAST (Alias for MOVIE CAST) =====
+// GET /cast - List cast entries
+router.get('/cast', getAllMovieCast);
+
+// GET /cast/:uniqueId - Get cast entry by ID
+router.get('/cast/:uniqueId', getMovieCastById);
+
+// POST /cast - Add a cast member to a movie
+router.post('/cast', createMovieCast);
+
+// PUT /cast/:uniqueId - Update cast entry
+router.put('/cast/:uniqueId', updateMovieCast);
+
+// DELETE /cast/:uniqueId - Remove cast entry
+router.delete('/cast/:uniqueId', deleteMovieCast);
+
 // ===== MOVIE DIRECTORS =====
 // GET /movie_directors - List movie-director associations
 router.get('/movie_directors', getAllMovieDirectors);

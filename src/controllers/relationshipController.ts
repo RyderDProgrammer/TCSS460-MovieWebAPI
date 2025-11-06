@@ -75,7 +75,7 @@ export const deleteMovieGenre = async (req: Request, res: Response): Promise<voi
 // GET /movie_cast - List cast entries
 export const getAllMovieCast = async (req: Request, res: Response): Promise<void> => {
   try {
-    const sql = 'SELECT * FROM Cast ORDER BY cast_order';
+    const sql = 'SELECT * FROM Cast ORDER BY cast_id';
     const movieCast = await query(sql, []);
     res.status(200).json(movieCast);
   } catch (error) {
@@ -84,18 +84,18 @@ export const getAllMovieCast = async (req: Request, res: Response): Promise<void
   }
 };
 
-// GET /movie_cast/:uniqueId - Get cast entry by ID
+// GET /movie_cast/:cast_id - Get cast entry by ID
 export const getMovieCastById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const uniqueId = parseInt(req.params.uniqueId);
+    const castId = parseInt(req.params.uniqueId);
 
-    if (isNaN(uniqueId)) {
-      res.status(400).json({ error: 'Invalid uniqueId' });
+    if (isNaN(castId)) {
+      res.status(400).json({ error: 'Invalid cast_id' });
       return;
     }
 
-    const sql = 'SELECT * FROM Cast WHERE uniqueId = ?';
-    const cast = await query(sql, [uniqueId]);
+    const sql = 'SELECT * FROM Cast WHERE cast_id = ?';
+    const cast = await query(sql, [castId]);
 
     if (cast.length === 0) {
       res.status(404).json({ message: 'Not found' });
@@ -112,25 +112,24 @@ export const getMovieCastById = async (req: Request, res: Response): Promise<voi
 // POST /movie_cast - Add a cast member to a movie
 export const createMovieCast = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { movie_id, person_id, character_name, cast_order } = req.body;
+    const { movie_id, actor_id, character_name } = req.body;
 
-    if (!movie_id || !person_id) {
-      res.status(400).json({ error: 'movie_id and person_id are required' });
+    if (!movie_id || !actor_id) {
+      res.status(400).json({ error: 'movie_id and actor_id are required' });
       return;
     }
 
     const sql = `
-      INSERT INTO Cast (movie_id, person_id, character_name, cast_order)
-      VALUES (?, ?, ?, ?)
+      INSERT INTO Cast (movie_id, actor_id, character_name)
+      VALUES (?, ?, ?)
     `;
     const result = await run(sql, [
       movie_id,
-      person_id,
-      character_name || null,
-      cast_order || null
+      actor_id,
+      character_name || null
     ]);
 
-    const newCast = await query('SELECT * FROM Cast WHERE uniqueId = ?', [result.lastID]);
+    const newCast = await query('SELECT * FROM Cast WHERE cast_id = ?', [result.lastID]);
 
     res.status(201).json(newCast[0]);
   } catch (error) {
@@ -139,43 +138,42 @@ export const createMovieCast = async (req: Request, res: Response): Promise<void
   }
 };
 
-// PUT /movie_cast/:uniqueId - Update cast entry
+// PUT /movie_cast/:cast_id - Update cast entry
 export const updateMovieCast = async (req: Request, res: Response): Promise<void> => {
   try {
-    const uniqueId = parseInt(req.params.uniqueId);
+    const castId = parseInt(req.params.uniqueId);
 
-    if (isNaN(uniqueId)) {
-      res.status(400).json({ error: 'Invalid uniqueId' });
+    if (isNaN(castId)) {
+      res.status(400).json({ error: 'Invalid cast_id' });
       return;
     }
 
-    const existing = await query('SELECT * FROM Cast WHERE uniqueId = ?', [uniqueId]);
+    const existing = await query('SELECT * FROM Cast WHERE cast_id = ?', [castId]);
     if (existing.length === 0) {
       res.status(404).json({ message: 'Not found' });
       return;
     }
 
-    const { movie_id, person_id, character_name, cast_order } = req.body;
+    const { movie_id, actor_id, character_name } = req.body;
 
-    if (!movie_id || !person_id) {
-      res.status(400).json({ error: 'movie_id and person_id are required' });
+    if (!movie_id || !actor_id) {
+      res.status(400).json({ error: 'movie_id and actor_id are required' });
       return;
     }
 
     const sql = `
-      UPDATE Cast 
-      SET movie_id = ?, person_id = ?, character_name = ?, cast_order = ?
-      WHERE uniqueId = ?
+      UPDATE Cast
+      SET movie_id = ?, actor_id = ?, character_name = ?
+      WHERE cast_id = ?
     `;
     await run(sql, [
       movie_id,
-      person_id,
+      actor_id,
       character_name || null,
-      cast_order || null,
-      uniqueId
+      castId
     ]);
 
-    const updatedCast = await query('SELECT * FROM Cast WHERE uniqueId = ?', [uniqueId]);
+    const updatedCast = await query('SELECT * FROM Cast WHERE cast_id = ?', [castId]);
 
     res.status(200).json(updatedCast[0]);
   } catch (error) {
@@ -184,24 +182,24 @@ export const updateMovieCast = async (req: Request, res: Response): Promise<void
   }
 };
 
-// DELETE /movie_cast/:uniqueId - Remove cast entry
+// DELETE /movie_cast/:cast_id - Remove cast entry
 export const deleteMovieCast = async (req: Request, res: Response): Promise<void> => {
   try {
-    const uniqueId = parseInt(req.params.uniqueId);
+    const castId = parseInt(req.params.uniqueId);
 
-    if (isNaN(uniqueId)) {
-      res.status(400).json({ error: 'Invalid uniqueId' });
+    if (isNaN(castId)) {
+      res.status(400).json({ error: 'Invalid cast_id' });
       return;
     }
 
-    const existing = await query('SELECT * FROM Cast WHERE uniqueId = ?', [uniqueId]);
+    const existing = await query('SELECT * FROM Cast WHERE cast_id = ?', [castId]);
     if (existing.length === 0) {
       res.status(404).json({ message: 'Not found' });
       return;
     }
 
-    const sql = 'DELETE FROM Cast WHERE uniqueId = ?';
-    await run(sql, [uniqueId]);
+    const sql = 'DELETE FROM Cast WHERE cast_id = ?';
+    await run(sql, [castId]);
 
     res.status(204).send();
   } catch (error) {
@@ -227,15 +225,15 @@ export const getAllMovieDirectors = async (req: Request, res: Response): Promise
 // POST /movie_directors - Add a director to a movie
 export const createMovieDirector = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { movie_id, person_id } = req.body;
+    const { movie_id, director_id } = req.body;
 
-    if (!movie_id || !person_id) {
-      res.status(400).json({ error: 'movie_id and person_id are required' });
+    if (!movie_id || !director_id) {
+      res.status(400).json({ error: 'movie_id and director_id are required' });
       return;
     }
 
-    const sql = 'INSERT INTO Movie_Directors (movie_id, person_id) VALUES (?, ?)';
-    const result = await run(sql, [movie_id, person_id]);
+    const sql = 'INSERT INTO Movie_Directors (movie_id, director_id) VALUES (?, ?)';
+    const result = await run(sql, [movie_id, director_id]);
 
     const newMovieDirector = await query(
       'SELECT * FROM Movie_Directors WHERE movie_director_id = ?',
@@ -296,15 +294,15 @@ export const getAllMovieProducers = async (req: Request, res: Response): Promise
 // POST /movie_producers - Add a producer to a movie
 export const createMovieProducer = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { movie_id, person_id } = req.body;
+    const { movie_id, producer_id } = req.body;
 
-    if (!movie_id || !person_id) {
-      res.status(400).json({ error: 'movie_id and person_id are required' });
+    if (!movie_id || !producer_id) {
+      res.status(400).json({ error: 'movie_id and producer_id are required' });
       return;
     }
 
-    const sql = 'INSERT INTO Movie_Producers (movie_id, person_id) VALUES (?, ?)';
-    const result = await run(sql, [movie_id, person_id]);
+    const sql = 'INSERT INTO Movie_Producers (movie_id, producer_id) VALUES (?, ?)';
+    const result = await run(sql, [movie_id, producer_id]);
 
     const newMovieProducer = await query(
       'SELECT * FROM Movie_Producers WHERE movie_producer_id = ?',
