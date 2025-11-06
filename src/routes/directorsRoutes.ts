@@ -1,7 +1,6 @@
 import express, { Router } from 'express';
 import {
   getAllDirectors,
-  getDirectorById,
   getDirectorByName,
   getDirectorMovies,
   createDirector,

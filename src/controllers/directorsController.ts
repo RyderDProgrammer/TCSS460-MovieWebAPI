@@ -39,31 +39,6 @@ export const getDirectorByName = async (req: Request, res: Response): Promise<vo
   }
 };
 
-// GET /directors/:director_id - Get director by ID
-export const getDirectorById = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const directorId = parseInt(req.params.director_id);
-
-    if (isNaN(directorId)) {
-      res.status(400).json({ error: 'Invalid director ID' });
-      return;
-    }
-
-    const sql = 'SELECT * FROM Directors WHERE director_id = ?';
-    const directors = await query(sql, [directorId]);
-
-    if (directors.length === 0) {
-      res.status(404).json({ message: 'Not found' });
-      return;
-    }
-
-    res.status(200).json(directors[0]);
-  } catch (error) {
-    console.error('Error fetching director:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
-
 // GET /directors/:director_id/movies - Get all movies for a director
 export const getDirectorMovies = async (req: Request, res: Response): Promise<void> => {
   try {

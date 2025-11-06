@@ -2,7 +2,6 @@
 import express, { Router } from 'express';
 import {
   getAllMovies,
-  getMovieById,
   getMovieByTitle,
   createMovie,
   updateMovie,

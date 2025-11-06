@@ -1,7 +1,6 @@
 import express, { Router } from 'express';
 import {
   getAllStudios,
-  getStudioById,
   getStudioByName,
   createStudio,
   updateStudio,

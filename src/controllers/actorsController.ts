@@ -39,31 +39,6 @@ export const getActorByName = async (req: Request, res: Response): Promise<void>
   }
 };
 
-// GET /actors/:actor_id - Get actor by ID
-export const getActorById = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const actorId = parseInt(req.params.actor_id);
-
-    if (isNaN(actorId)) {
-      res.status(400).json({ error: 'Invalid actor ID' });
-      return;
-    }
-
-    const sql = 'SELECT * FROM Actors WHERE actor_id = ?';
-    const actors = await query(sql, [actorId]);
-
-    if (actors.length === 0) {
-      res.status(404).json({ message: 'Not found' });
-      return;
-    }
-
-    res.status(200).json(actors[0]);
-  } catch (error) {
-    console.error('Error fetching actor:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
-
 // GET /actors/:actor_id/movies - Get all movies for an actor
 export const getActorMovies = async (req: Request, res: Response): Promise<void> => {
   try {

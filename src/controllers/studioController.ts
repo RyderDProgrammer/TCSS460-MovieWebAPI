@@ -39,31 +39,6 @@ export const getStudioByName = async (req: Request, res: Response): Promise<void
   }
 };
 
-// GET /studios/:studio_id - Get studio by ID
-export const getStudioById = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const studioId = parseInt(req.params.studio_id);
-
-    if (isNaN(studioId)) {
-      res.status(400).json({ error: 'Invalid studio ID' });
-      return;
-    }
-
-    const sql = 'SELECT * FROM Studios WHERE studio_id = ?';
-    const studios = await query(sql, [studioId]);
-
-    if (studios.length === 0) {
-      res.status(404).json({ message: 'Not found' });
-      return;
-    }
-
-    res.status(200).json(studios[0]);
-  } catch (error) {
-    console.error('Error fetching studio:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
-
 // POST /studios - Create a new studio
 export const createStudio = async (req: Request, res: Response): Promise<void> => {
   try {

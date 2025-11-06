@@ -39,32 +39,6 @@ export const getGenreByName = async (req: Request, res: Response): Promise<void>
   }
 };
 
-
-// GET /genres/:genre_id - Get genre by ID
-export const getGenreById = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const genreId = parseInt(req.params.genre_id);
-
-    if (isNaN(genreId)) {
-      res.status(400).json({ error: 'Invalid genre ID' });
-      return;
-    }
-
-    const sql = 'SELECT * FROM Genres WHERE genre_id = ?';
-    const genres = await query(sql, [genreId]);
-
-    if (genres.length === 0) {
-      res.status(404).json({ message: 'Not found' });
-      return;
-    }
-
-    res.status(200).json(genres[0]);
-  } catch (error) {
-    console.error('Error fetching genre:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
-
 // POST /genres - Create a new genre
 export const createGenre = async (req: Request, res: Response): Promise<void> => {
   try {

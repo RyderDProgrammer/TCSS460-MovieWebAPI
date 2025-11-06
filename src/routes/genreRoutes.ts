@@ -1,7 +1,6 @@
 import express, { Router } from 'express';
 import {
   getAllGenres,
-  getGenreById,
   getGenreByName,
   createGenre,
   updateGenre,
