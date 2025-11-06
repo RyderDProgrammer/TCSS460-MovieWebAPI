@@ -4,7 +4,7 @@ import { query, run } from '../core/utilities/database.js';
 // GET /studios - List all studios
 export const getAllStudios = async (req: Request, res: Response): Promise<void> => {
   try {
-    const sql = 'SELECT * FROM studios ORDER BY studio_name';
+    const sql = 'SELECT * FROM studios ORDER BY studio_id';
     const studios = await query(sql, []);
 
     res.status(200).json(studios);
@@ -49,7 +49,7 @@ export const createStudio = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    const sql = 'INSERT INTO studios (name, country, logo_url) VALUES (?, ?, ?)';
+    const sql = 'INSERT INTO studios (studio_name, studio_country, studio_logo) VALUES (?, ?, ?)';
     const result = await run(sql, [name, country || null, logo_url || null]);
 
     const newStudio = await query('SELECT * FROM studios WHERE studio_id = ?', [result.lastID]);
@@ -85,7 +85,7 @@ export const updateStudio = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    const sql = 'UPDATE studios SET name = ?, country = ?, logo_url = ? WHERE studio_id = ?';
+    const sql = 'UPDATE studios SET studio_name = ?, studio_country = ?, studio_logo = ? WHERE studio_id = ?';
     await run(sql, [name, country || null, logo_url || null, studioId]);
 
     const updatedStudio = await query('SELECT * FROM studios WHERE studio_id = ?', [studioId]);

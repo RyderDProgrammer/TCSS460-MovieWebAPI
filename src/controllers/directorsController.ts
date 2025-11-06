@@ -68,15 +68,15 @@ export const getDirectorMovies = async (req: Request, res: Response): Promise<vo
 // POST /directors - Create a new director
 export const createDirector = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { director_name } = req.body;
+    const { name } = req.body;
 
-    if (!director_name) {
+    if (!name) {
       res.status(400).json({ error: 'Director name is required' });
       return;
     }
 
     const sql = 'INSERT INTO Directors (director_name) VALUES (?)';
-    const result = await run(sql, [director_name]);
+    const result = await run(sql, [name]);
 
     const newDirector = await query('SELECT * FROM Directors WHERE director_id = ?', [result.lastID]);
 
@@ -104,15 +104,15 @@ export const updateDirector = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    const { director_name } = req.body;
+    const { name } = req.body;
 
-    if (!director_name) {
+    if (!name) {
       res.status(400).json({ error: 'Director name is required' });
       return;
     }
 
     const sql = 'UPDATE Directors SET director_name = ? WHERE director_id = ?';
-    await run(sql, [director_name, directorId]);
+    await run(sql, [name, directorId]);
 
     const updatedDirector = await query('SELECT * FROM Directors WHERE director_id = ?', [directorId]);
 

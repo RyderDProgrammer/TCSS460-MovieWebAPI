@@ -120,6 +120,116 @@ components:
           description: URL to studio logo
           example: "https://studio.example.com/logos/warner.png"
 
+    StudioInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Studio name
+          example: "Warner Bros."
+        country:
+          type: string
+          description: Country where studio is based
+          example: "USA"
+        logo_url:
+          type: string
+          format: uri
+          description: URL to studio logo
+          example: "https://studio.example.com/logos/warner.png"
+
+    ActorInput:
+      type: object
+      required:
+        - actor_name
+      properties:
+        actor_name:
+          type: string
+          description: Full name of the actor
+          example: "Leonardo DiCaprio"
+        profile_url:
+          type: string
+          format: uri
+          description: URL to profile photo
+          example: "https://image.tmdb.org/t/p/w300/actor.jpg"
+
+    DirectorInput:
+      type: object
+      required:
+        - director_name
+      properties:
+        director_name:
+          type: string
+          description: Full name of the director
+          example: "Christopher Nolan"
+
+    GenreInput:
+      type: object
+      required:
+        - genre_name
+      properties:
+        genre_name:
+          type: string
+          description: Genre name
+          example: "Action"
+
+    MovieInput:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          description: Movie title
+          example: "Inception"
+        original_title:
+          type: string
+          description: Original title (if different from English title)
+          example: "Inception"
+        release_date:
+          type: string
+          format: date
+          description: Release date in YYYY-MM-DD format
+          example: "2010-07-16"
+        runtime_in_minutes:
+          type: integer
+          description: Runtime in minutes
+          example: 148
+        overview:
+          type: string
+          description: Plot summary or description
+          example: "A thief who steals corporate secrets..."
+        budget:
+          type: integer
+          format: int64
+          description: Production budget in USD
+          example: 160000000
+        revenue:
+          type: integer
+          format: int64
+          description: Box office revenue in USD
+          example: 825532764
+        mpa_rating:
+          type: string
+          description: MPA rating (G, PG, PG-13, R, NC-17, etc.)
+          example: "PG-13"
+        collection:
+          type: string
+          nullable: true
+          description: Movie collection or franchise name
+          example: "The Inception Collection"
+        poster_url:
+          type: string
+          format: uri
+          description: URL to movie poster image
+          example: "https://image.tmdb.org/t/p/w500/xxx.jpg"
+        backdrop_url:
+          type: string
+          format: uri
+          description: URL to backdrop/banner image
+          example: "https://image.tmdb.org/t/p/w1280/yyy.jpg"
+
     Actor:
       type: object
       properties:
@@ -425,7 +535,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Movie'
+              $ref: '#/components/schemas/MovieInput'
       responses:
         '201':
           description: Movie created successfully
@@ -483,7 +593,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Movie'
+              $ref: '#/components/schemas/MovieInput'
       responses:
         '200':
           description: Movie updated successfully
@@ -550,7 +660,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Genre'
+              $ref: '#/components/schemas/GenreInput'
       responses:
         '201':
           description: Genre created successfully
@@ -606,7 +716,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Genre'
+              $ref: '#/components/schemas/GenreInput'
       responses:
         '200':
           description: Genre updated successfully
@@ -673,7 +783,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Studio'
+              $ref: '#/components/schemas/StudioInput'
       responses:
         '201':
           description: Studio created successfully
@@ -729,7 +839,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Studio'
+              $ref: '#/components/schemas/StudioInput'
       responses:
         '200':
           description: Studio updated successfully
@@ -796,7 +906,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Actor'
+              $ref: '#/components/schemas/ActorInput'
       responses:
         '201':
           description: Actor created successfully
@@ -852,7 +962,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Actor'
+              $ref: '#/components/schemas/ActorInput'
       responses:
         '200':
           description: Actor updated successfully
@@ -957,7 +1067,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Director'
+              $ref: '#/components/schemas/DirectorInput'
       responses:
         '201':
           description: Director created successfully
@@ -1013,7 +1123,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Director'
+              $ref: '#/components/schemas/DirectorInput'
       responses:
         '200':
           description: Director updated successfully

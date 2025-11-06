@@ -60,6 +60,21 @@
       "key": "random_actor_name",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "test_studio_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "random_studio_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "random_studio_name",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -208,7 +223,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"actor_name\": \"Test Actor - Postman\",\n  \"date_of_birth\": \"1985-05-15\",\n  \"biography\": \"This is a test actor created via Postman for API testing\",\n  \"profile_url\": \"https://example.com/test-actor.jpg\"\n}"
+              "raw": "{\n  \"name\": \"Test Actor - Postman\",\n  \"profile_url\": \"https://example.com/test-actor.jpg\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/actors",
@@ -379,7 +394,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"actor_name\": \"Test Actor - UPDATED\",\n  \"date_of_birth\": \"1985-05-15\",\n  \"biography\": \"This actor has been updated via Postman\",\n  \"profile_url\": \"https://example.com/test-actor-updated.jpg\"\n}"
+              "raw": "{\n  \"name\": \"Test Actor - UPDATED\",\n  \"profile_url\": \"https://example.com/test-actor-updated.jpg\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/actors/{{test_actor_id}}",
@@ -584,7 +599,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"director_name\": \"Test Director - Postman\",\n  \"date_of_birth\": \"1975-08-20\",\n  \"biography\": \"Test director for API testing\",\n  \"profile_url\": \"https://example.com/test-director.jpg\"\n}"
+              "raw": "{\n  \"name\": \"Test Director - Postman\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/directors",
@@ -750,7 +765,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"director_name\": \"Test Director - UPDATED\",\n  \"date_of_birth\": \"1975-08-20\"\n}"
+              "raw": "{\n  \"name\": \"Test Director - UPDATED\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/directors/{{test_director_id}}",
@@ -832,6 +847,312 @@
       ]
     },
     {
+      "name": "Studios",
+      "item": [
+        {
+          "name": "Get All Studios (No API Key) - Should Fail",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/studios",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "studios"
+              ]
+            },
+            "description": "Expected 401 Unauthorized"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Studios",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is an array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/studios",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "studios"
+              ]
+            },
+            "description": "Get all studios"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Studio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('test_studio_id', jsonData.studio_id);",
+                  "    pm.test('Studio created', function() {",
+                  "        pm.expect(jsonData.studio_name).to.eql('Test Studio - Postman');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Studio - Postman\",\n  \"country\": \"USA\",\n  \"logo_url\": \"https://example.com/test-studio-logo.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/studios",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "studios"
+              ]
+            },
+            "description": "Create a new studio"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Studio by ID",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Get all studios and pick a random one",
+                  "pm.sendRequest({",
+                  "    url: pm.collectionVariables.get('base_url') + '/studios',",
+                  "    method: 'GET',",
+                  "    header: {",
+                  "        'X-API-Key': pm.collectionVariables.get('api_key')",
+                  "    }",
+                  "}, function (err, response) {",
+                  "    if (!err && response.json().length > 0) {",
+                  "        var studios = response.json();",
+                  "        var randomStudio = studios[Math.floor(Math.random() * studios.length)];",
+                  "        pm.collectionVariables.set('random_studio_id', randomStudio.studio_id);",
+                  "        pm.collectionVariables.set('random_studio_name', randomStudio.studio_name);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Studio has correct properties\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('studio_id');",
+                  "    pm.expect(jsonData).to.have.property('studio_name');",
+                  "    pm.expect(jsonData.studio_id).to.eql(pm.collectionVariables.get('random_studio_id'));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/studios/{{random_studio_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "studios",
+                "{{random_studio_id}}"
+              ]
+            },
+            "description": "Get a random studio by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Studio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Studio - UPDATED\",\n  \"country\": \"Canada\",\n  \"logo_url\": \"https://example.com/test-studio-logo-updated.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/studios/{{test_studio_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "studios",
+                "{{test_studio_id}}"
+              ]
+            },
+            "description": "Update the studio"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Studio",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/studios/{{test_studio_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "studios",
+                "{{test_studio_id}}"
+              ]
+            },
+            "description": "Delete the test studio"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Deleted Studio (Should Fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/studios/{{test_studio_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "studios",
+                "{{test_studio_id}}"
+              ]
+            },
+            "description": "Should return 404"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Genres",
       "item": [
         {
@@ -893,7 +1214,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"genre_name\": \"Test Genre\"\n}"
+              "raw": "{\n  \"name\": \"Test Genre\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/genres",
@@ -951,7 +1272,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"genre_name\": \"Updated Test Genre\"\n}"
+              "raw": "{\n  \"name\": \"Updated Test Genre\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/genres/{{test_genre_id}}",
@@ -1556,6 +1877,142 @@
                 "directors",
                 "999999",
                 "movies"
+              ]
+            },
+            "description": "Should return 404"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Studio - Missing Name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Returns error message\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"country\": \"USA\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/studios",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "studios"
+              ]
+            },
+            "description": "Should return 400 - missing name"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Studio - Invalid ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Invalid\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/studios/999999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "studios",
+                "999999"
+              ]
+            },
+            "description": "Should return 404"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Studio by Invalid ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/studios/999999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "studios",
+                "999999"
               ]
             },
             "description": "Should return 404"

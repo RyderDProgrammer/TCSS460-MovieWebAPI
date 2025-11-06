@@ -68,15 +68,15 @@ export const getActorMovies = async (req: Request, res: Response): Promise<void>
 // POST /actors - Create a new actor
 export const createActor = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { actor_name, profile_url } = req.body;
+    const { name, profile_url } = req.body;
 
-    if (!actor_name) {
+    if (!name) {
       res.status(400).json({ error: 'Actor name is required' });
       return;
     }
 
     const sql = 'INSERT INTO Actors (actor_name, profile_url) VALUES (?, ?)';
-    const result = await run(sql, [actor_name, profile_url || null]);
+    const result = await run(sql, [name, profile_url || null]);
 
     const newActor = await query('SELECT * FROM Actors WHERE actor_id = ?', [result.lastID]);
 
@@ -104,15 +104,15 @@ export const updateActor = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    const { actor_name, profile_url } = req.body;
+    const { name, profile_url } = req.body;
 
-    if (!actor_name) {
+    if (!name) {
       res.status(400).json({ error: 'Actor name is required' });
       return;
     }
 
     const sql = 'UPDATE Actors SET actor_name = ?, profile_url = ? WHERE actor_id = ?';
-    await run(sql, [actor_name, profile_url || null, actorId]);
+    await run(sql, [name, profile_url || null, actorId]);
 
     const updatedActor = await query('SELECT * FROM Actors WHERE actor_id = ?', [actorId]);
 
