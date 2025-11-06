@@ -72,6 +72,53 @@ export const getMoviesByYear = (req: Request, res: Response) => {
 };
 
 /**
+ * GET /movies/:title - Get detailed movie information by title with genres and cast
+ */
+export const getMovieByTitle = (req: Request, res: Response) => {
+  const title = req.params.title;
+
+  if (!title) return res.status(400).json({ error: 'Invalid title' });
+
+  const movieSql = `SELECT * FROM Movies WHERE LOWER(title) LIKE LOWER(?)`;
+
+  db.get(movieSql, [`%${title}%`], (err: Error | null, movie: Movie) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (!movie) return res.status(404).json({ error: 'Movie not found' });
+
+    // Load genres
+    const genresSql = `
+      SELECT g.genre_name FROM Movie_Genres mg
+      JOIN Genres g ON mg.genre_id = g.genre_id
+      WHERE mg.movie_id = ?
+    `;
+
+    db.all(genresSql, [movie.movie_id], (gErr: Error | null, genres: Genre[]) => {
+      if (gErr) return res.status(500).json({ error: gErr.message });
+
+      // Load cast (first 10)
+      const castSql = `
+        SELECT a.actor_name, c.character_name FROM Cast c
+        JOIN Actors a ON c.actor_id = a.actor_id
+        WHERE c.movie_id = ?
+        ORDER BY c.cast_id LIMIT 10
+      `;
+
+      db.all(castSql, [movie.movie_id], (cErr: Error | null, cast: CastMember[]) => {
+        if (cErr) return res.status(500).json({ error: cErr.message });
+
+        const movieWithDetails: MovieWithDetails = {
+          ...movie,
+          genres: genres ? genres.map(g => g.genre_name) : [],
+          cast: cast || []
+        };
+
+        res.json(movieWithDetails);
+      });
+    });
+  });
+};
+
+/**
  * GET /movies/:id - Get detailed movie information with genres and cast
  */
 export const getMovieById = (req: Request, res: Response) => {

@@ -14,6 +14,31 @@ export const getAllDirectors = async (req: Request, res: Response): Promise<void
   }
 };
 
+// GET /directors/:director_name - Get director by name
+export const getDirectorByName = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const directorName = req.params.director_name;
+
+    if (!directorName) {
+      res.status(400).json({ error: 'Invalid director name' });
+      return;
+    }
+
+    const sql = 'SELECT * FROM Directors WHERE LOWER(director_name) LIKE LOWER(?)';
+    const directors = await query(sql, [`%${directorName}%`]);
+
+    if (directors.length === 0) {
+      res.status(404).json({ message: 'Not found' });
+      return;
+    }
+
+    res.status(200).json(directors);
+  } catch (error) {
+    console.error('Error fetching director:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 // GET /directors/:director_id - Get director by ID
 export const getDirectorById = async (req: Request, res: Response): Promise<void> => {
   try {

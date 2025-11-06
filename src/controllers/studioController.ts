@@ -14,6 +14,31 @@ export const getAllStudios = async (req: Request, res: Response): Promise<void> 
   }
 };
 
+// GET /studios/:studio_name - Get studio by name
+export const getStudioByName = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const studioName = req.params.studio_name;
+
+    if (!studioName) {
+      res.status(400).json({ error: 'Invalid studio name' });
+      return;
+    }
+
+    const sql = 'SELECT * FROM Studios WHERE LOWER(studio_name) = LOWER(?)';
+    const studios = await query(sql, [`%${studioName}%`]);
+
+    if (studios.length === 0) {
+      res.status(404).json({ message: 'Not found' });
+      return;
+    }
+
+    res.status(200).json(studios[0]);
+  } catch (error) {
+    console.error('Error fetching studio:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 // GET /studios/:studio_id - Get studio by ID
 export const getStudioById = async (req: Request, res: Response): Promise<void> => {
   try {

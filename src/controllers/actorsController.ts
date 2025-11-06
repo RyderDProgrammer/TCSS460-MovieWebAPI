@@ -14,6 +14,31 @@ export const getAllActors = async (req: Request, res: Response): Promise<void> =
   }
 };
 
+// GET /actors/:actor_name - Get actor by name (fuzzy search)
+export const getActorByName = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const actorName = req.params.actor_name;
+
+    if (!actorName) {
+      res.status(400).json({ error: 'Invalid actor name' });
+      return;
+    }
+
+    const sql = 'SELECT * FROM Actors WHERE LOWER(actor_name) LIKE LOWER(?)';
+    const actors = await query(sql, [`%${actorName}%`]);
+
+    if (actors.length === 0) {
+      res.status(404).json({ message: 'Not found' });
+      return;
+    }
+
+    res.status(200).json(actors);
+  } catch (error) {
+    console.error('Error fetching actor:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 // GET /actors/:actor_id - Get actor by ID
 export const getActorById = async (req: Request, res: Response): Promise<void> => {
   try {

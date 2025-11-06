@@ -14,6 +14,32 @@ export const getAllGenres = async (req: Request, res: Response): Promise<void> =
   }
 };
 
+// GET /genres/:genre_name - Get genre by name
+export const getGenreByName = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const genreName = req.params.genre_name;
+
+    if (!genreName) {
+      res.status(400).json({ error: 'Invalid genre name' });
+      return;
+    }
+
+    const sql = 'SELECT * FROM Genres WHERE LOWER(genre_name) LIKE LOWER(?)';
+    const genres = await query(sql, [`%${genreName}%`]);
+
+    if (genres.length === 0) {
+      res.status(404).json({ message: 'Not found' });
+      return;
+    }
+
+    res.status(200).json(genres);
+  } catch (error) {
+    console.error('Error fetching genre:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
 // GET /genres/:genre_id - Get genre by ID
 export const getGenreById = async (req: Request, res: Response): Promise<void> => {
   try {

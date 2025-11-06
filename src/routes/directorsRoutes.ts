@@ -2,6 +2,7 @@ import express, { Router } from 'express';
 import {
   getAllDirectors,
   getDirectorById,
+  getDirectorByName,
   getDirectorMovies,
   createDirector,
   updateDirector,
@@ -13,8 +14,8 @@ const router: Router = express.Router();
 // GET /directors - List all directors
 router.get('/', getAllDirectors);
 
-// GET /directors/:director_id - Get director by ID
-router.get('/:director_id', getDirectorById);
+// GET /directors/:director_name - Get director by name (must be before /:director_id/movies)
+router.get('/:director_name', getDirectorByName);
 
 // GET /directors/:director_id/movies - Get all movies for a director
 router.get('/:director_id/movies', getDirectorMovies);
@@ -22,10 +23,10 @@ router.get('/:director_id/movies', getDirectorMovies);
 // POST /directors - Create a new director
 router.post('/', createDirector);
 
-// PUT /directors/:director_id - Update a director
+// PUT /directors/:director_id - Update a director by ID
 router.put('/:director_id', updateDirector);
 
-// DELETE /directors/:director_id - Delete a director
+// DELETE /directors/:director_id - Delete a director by ID
 router.delete('/:director_id', deleteDirector);
 
 export default router;
