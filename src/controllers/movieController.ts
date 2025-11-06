@@ -72,51 +72,58 @@ export const getMoviesByYear = (req: Request, res: Response) => {
 };
 
 /**
- * GET /movies/:title - Get detailed movie information by title with genres and cast
+ * GET /movies/:title - Get detailed movie information by fuzzy title match
  */
 export const getMovieByTitle = (req: Request, res: Response) => {
   const title = req.params.title;
 
   if (!title) return res.status(400).json({ error: 'Invalid title' });
 
-  const movieSql = `SELECT * FROM Movies WHERE LOWER(title) LIKE LOWER(?)`;
+  const movieSql = `SELECT * FROM Movies WHERE LOWER(title) LIKE LOWER(?) LIMIT 5`;
 
-  db.get(movieSql, [`%${title}%`], (err: Error | null, movie: Movie) => {
+  db.all(movieSql, [`%${title}%`], (err: Error | null, movies: Movie[]) => {
     if (err) return res.status(500).json({ error: err.message });
-    if (!movie) return res.status(404).json({ error: 'Movie not found' });
+    if (!movies || movies.length === 0)
+      return res.status(404).json({ error: 'No movies found' });
 
-    // Load genres
-    const genresSql = `
-      SELECT g.genre_name FROM Movie_Genres mg
-      JOIN Genres g ON mg.genre_id = g.genre_id
-      WHERE mg.movie_id = ?
-    `;
+    // For each movie, load genres and cast
+    const moviePromises = movies.map(movie => {
+      return new Promise<MovieWithDetails>((resolve, reject) => {
+        const genresSql = `
+          SELECT g.genre_name FROM Movie_Genres mg
+          JOIN Genres g ON mg.genre_id = g.genre_id
+          WHERE mg.movie_id = ?
+        `;
 
-    db.all(genresSql, [movie.movie_id], (gErr: Error | null, genres: Genre[]) => {
-      if (gErr) return res.status(500).json({ error: gErr.message });
+        db.all(genresSql, [movie.movie_id], (gErr: Error | null, genres: Genre[]) => {
+          if (gErr) return reject(gErr);
 
-      // Load cast (first 10)
-      const castSql = `
-        SELECT a.actor_name, c.character_name FROM Cast c
-        JOIN Actors a ON c.actor_id = a.actor_id
-        WHERE c.movie_id = ?
-        ORDER BY c.cast_id LIMIT 10
-      `;
+          const castSql = `
+            SELECT a.actor_name, c.character_name FROM Cast c
+            JOIN Actors a ON c.actor_id = a.actor_id
+            WHERE c.movie_id = ?
+            ORDER BY c.cast_id LIMIT 10
+          `;
 
-      db.all(castSql, [movie.movie_id], (cErr: Error | null, cast: CastMember[]) => {
-        if (cErr) return res.status(500).json({ error: cErr.message });
+          db.all(castSql, [movie.movie_id], (cErr: Error | null, cast: CastMember[]) => {
+            if (cErr) return reject(cErr);
 
-        const movieWithDetails: MovieWithDetails = {
-          ...movie,
-          genres: genres ? genres.map(g => g.genre_name) : [],
-          cast: cast || []
-        };
-
-        res.json(movieWithDetails);
+            resolve({
+              ...movie,
+              genres: genres?.map(g => g.genre_name) || [],
+              cast: cast || []
+            });
+          });
+        });
       });
     });
+
+    Promise.all(moviePromises)
+      .then(results => res.json(results))
+      .catch(error => res.status(500).json({ error: error.message }));
   });
 };
+
 
 /**
  * GET /movies/:id - Get detailed movie information with genres and cast
