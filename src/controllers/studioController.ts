@@ -42,15 +42,15 @@ export const getStudioByName = async (req: Request, res: Response): Promise<void
 // POST /studios - Create a new studio
 export const createStudio = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, country, logo_url } = req.body;
+    const { studio_name, studio_country, studio_logo } = req.body;
 
-    if (!name) {
-      res.status(400).json({ error: 'Name is required' });
+    if (!studio_name) {
+      res.status(400).json({ error: 'Studio name is required' });
       return;
     }
 
     const sql = 'INSERT INTO Studios (studio_name, studio_country, studio_logo) VALUES (?, ?, ?)';
-    const result = await run(sql, [name, country || null, logo_url || null]);
+    const result = await run(sql, [studio_name, studio_country || null, studio_logo || null]);
 
     const newStudio = await query('SELECT * FROM Studios WHERE studio_id = ?', [result.lastID]);
 
@@ -78,15 +78,15 @@ export const updateStudio = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    const { name, country, logo_url } = req.body;
+    const { studio_name, studio_country, studio_logo } = req.body;
 
-    if (!name) {
-      res.status(400).json({ error: 'Name is required' });
+    if (!studio_name) {
+      res.status(400).json({ error: 'Studio name is required' });
       return;
     }
 
     const sql = 'UPDATE Studios SET studio_name = ?, studio_country = ?, studio_logo = ? WHERE studio_id = ?';
-    await run(sql, [name, country || null, logo_url || null, studioId]);
+    await run(sql, [studio_name, studio_country || null, studio_logo || null, studioId]);
 
     const updatedStudio = await query('SELECT * FROM Studios WHERE studio_id = ?', [studioId]);
 

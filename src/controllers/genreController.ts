@@ -42,15 +42,15 @@ export const getGenreByName = async (req: Request, res: Response): Promise<void>
 // POST /genres - Create a new genre
 export const createGenre = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name } = req.body;
+    const { genre_name } = req.body;
 
-    if (!name) {
-      res.status(400).json({ error: 'Name is required' });
+    if (!genre_name) {
+      res.status(400).json({ error: 'Genre name is required' });
       return;
     }
 
     const sql = 'INSERT INTO Genres (genre_name) VALUES (?)';
-    const result = await run(sql, [name]);
+    const result = await run(sql, [genre_name]);
 
     const newGenre = await query('SELECT * FROM Genres WHERE genre_id = ?', [result.lastID]);
 
@@ -78,15 +78,15 @@ export const updateGenre = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    const { name } = req.body;
+    const { genre_name } = req.body;
 
-    if (!name) {
-      res.status(400).json({ error: 'Name is required' });
+    if (!genre_name) {
+      res.status(400).json({ error: 'Genre name is required' });
       return;
     }
 
     const sql = 'UPDATE Genres SET genre_name = ? WHERE genre_id = ?';
-    await run(sql, [name, genreId]);
+    await run(sql, [genre_name, genreId]);
 
     const updatedGenre = await query('SELECT * FROM Genres WHERE genre_id = ?', [genreId]);
 
