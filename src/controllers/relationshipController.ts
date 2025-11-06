@@ -6,9 +6,19 @@ import { query, run } from '../core/utilities/database.js';
 // GET /movie_genres - List movie-genre associations
 export const getAllMovieGenres = async (req: Request, res: Response): Promise<void> => {
   try {
-    const sql = 'SELECT * FROM Movie_Genres';
-    const movieGenres = await query(sql, []);
-    res.status(200).json(movieGenres);
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
+    const pageSize = Math.min(parseInt(req.query.pageSize as string) || 10, 100);
+    const offset = (page - 1) * pageSize;
+
+    const sql = `
+      SELECT mg.*, m.title as movie_title, g.genre_name
+      FROM Movie_Genres mg
+      JOIN Movies m ON mg.movie_id = m.movie_id
+      JOIN Genres g ON mg.genre_id = g.genre_id
+      LIMIT ? OFFSET ?
+    `;
+    const movieGenres = await query(sql, [pageSize, offset]);
+    res.status(200).json({ page, pageSize, results: movieGenres });
   } catch (error) {
     console.error('Error fetching movie genres:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -75,9 +85,20 @@ export const deleteMovieGenre = async (req: Request, res: Response): Promise<voi
 // GET /movie_cast - List cast entries
 export const getAllMovieCast = async (req: Request, res: Response): Promise<void> => {
   try {
-    const sql = 'SELECT * FROM Cast ORDER BY cast_id';
-    const movieCast = await query(sql, []);
-    res.status(200).json(movieCast);
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
+    const pageSize = Math.min(parseInt(req.query.pageSize as string) || 10, 100);
+    const offset = (page - 1) * pageSize;
+
+    const sql = `
+      SELECT c.*, m.title as movie_title, a.actor_name
+      FROM Cast c
+      JOIN Movies m ON c.movie_id = m.movie_id
+      JOIN Actors a ON c.actor_id = a.actor_id
+      ORDER BY c.cast_id
+      LIMIT ? OFFSET ?
+    `;
+    const movieCast = await query(sql, [pageSize, offset]);
+    res.status(200).json({ page, pageSize, results: movieCast });
   } catch (error) {
     console.error('Error fetching movie cast:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -213,9 +234,19 @@ export const deleteMovieCast = async (req: Request, res: Response): Promise<void
 // GET /movie_directors - List movie-director associations
 export const getAllMovieDirectors = async (req: Request, res: Response): Promise<void> => {
   try {
-    const sql = 'SELECT * FROM Movie_Directors';
-    const movieDirectors = await query(sql, []);
-    res.status(200).json(movieDirectors);
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
+    const pageSize = Math.min(parseInt(req.query.pageSize as string) || 10, 100);
+    const offset = (page - 1) * pageSize;
+
+    const sql = `
+      SELECT md.*, m.title as movie_title, d.director_name
+      FROM Movie_Directors md
+      JOIN Movies m ON md.movie_id = m.movie_id
+      JOIN Directors d ON md.director_id = d.director_id
+      LIMIT ? OFFSET ?
+    `;
+    const movieDirectors = await query(sql, [pageSize, offset]);
+    res.status(200).json({ page, pageSize, results: movieDirectors });
   } catch (error) {
     console.error('Error fetching movie directors:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -282,9 +313,19 @@ export const deleteMovieDirector = async (req: Request, res: Response): Promise<
 // GET /movie_producers - List movie-producer associations
 export const getAllMovieProducers = async (req: Request, res: Response): Promise<void> => {
   try {
-    const sql = 'SELECT * FROM Movie_Producers';
-    const movieProducers = await query(sql, []);
-    res.status(200).json(movieProducers);
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
+    const pageSize = Math.min(parseInt(req.query.pageSize as string) || 10, 100);
+    const offset = (page - 1) * pageSize;
+
+    const sql = `
+      SELECT mp.*, m.title as movie_title, p.producer_name
+      FROM Movie_Producers mp
+      JOIN Movies m ON mp.movie_id = m.movie_id
+      JOIN Producers p ON mp.producer_id = p.producer_id
+      LIMIT ? OFFSET ?
+    `;
+    const movieProducers = await query(sql, [pageSize, offset]);
+    res.status(200).json({ page, pageSize, results: movieProducers });
   } catch (error) {
     console.error('Error fetching movie producers:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -351,9 +392,19 @@ export const deleteMovieProducer = async (req: Request, res: Response): Promise<
 // GET /movie_studios - List movie-studio associations
 export const getAllMovieStudios = async (req: Request, res: Response): Promise<void> => {
   try {
-    const sql = 'SELECT * FROM Movie_Studios';
-    const movieStudios = await query(sql, []);
-    res.status(200).json(movieStudios);
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
+    const pageSize = Math.min(parseInt(req.query.pageSize as string) || 10, 100);
+    const offset = (page - 1) * pageSize;
+
+    const sql = `
+      SELECT ms.*, m.title as movie_title, s.studio_name
+      FROM Movie_Studios ms
+      JOIN Movies m ON ms.movie_id = m.movie_id
+      JOIN Studios s ON ms.studio_id = s.studio_id
+      LIMIT ? OFFSET ?
+    `;
+    const movieStudios = await query(sql, [pageSize, offset]);
+    res.status(200).json({ page, pageSize, results: movieStudios });
   } catch (error) {
     console.error('Error fetching movie studios:', error);
     res.status(500).json({ message: 'Internal server error' });

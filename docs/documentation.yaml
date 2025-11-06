@@ -123,17 +123,17 @@ components:
     StudioInput:
       type: object
       required:
-        - name
+        - studio_name
       properties:
-        name:
+        studio_name:
           type: string
           description: Studio name
           example: "Warner Bros."
-        country:
+        studio_country:
           type: string
           description: Country where studio is based
           example: "USA"
-        logo_url:
+        studio_logo:
           type: string
           format: uri
           description: URL to studio logo
@@ -1242,18 +1242,53 @@ paths:
     get:
       tags:
         - relationships
-      summary: List movie-genre associations
+      summary: List movie-genre associations with pagination
+      description: Returns a paginated list of movie-genre associations including movie titles and genre names
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: Number of items per page
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: List of movie-genre associations
+          description: Paginated list of movie-genre associations with movie titles and genre names
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Movie_Genre'
+                type: object
+                properties:
+                  page:
+                    type: integer
+                    example: 1
+                  pageSize:
+                    type: integer
+                    example: 10
+                  results:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/Movie_Genre'
+                        - type: object
+                          properties:
+                            movie_title:
+                              type: string
+                              example: "Inception"
+                            genre_name:
+                              type: string
+                              example: "Action"
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
@@ -1315,18 +1350,53 @@ paths:
     get:
       tags:
         - relationships
-      summary: List all cast entries
+      summary: List all cast entries with pagination
+      description: Returns a paginated list of cast entries including movie titles and actor names
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: Number of items per page
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: List of cast entries
+          description: Paginated list of cast entries with movie titles and actor names
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Cast'
+                type: object
+                properties:
+                  page:
+                    type: integer
+                    example: 1
+                  pageSize:
+                    type: integer
+                    example: 10
+                  results:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/Cast'
+                        - type: object
+                          properties:
+                            movie_title:
+                              type: string
+                              example: "Inception"
+                            actor_name:
+                              type: string
+                              example: "Leonardo DiCaprio"
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
@@ -1441,15 +1511,49 @@ paths:
       summary: List movie-director associations
       security:
         - ApiKeyAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number for pagination
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: Number of items per page (max 100)
       responses:
         '200':
-          description: List of movie-director associations
+          description: Paginated list of movie-director associations with movie and director names
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Movie_Director'
+                type: object
+                properties:
+                  page:
+                    type: integer
+                    description: Current page number
+                  pageSize:
+                    type: integer
+                    description: Number of items per page
+                  results:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/Movie_Director'
+                        - type: object
+                          properties:
+                            movie_title:
+                              type: string
+                              description: Title of the movie
+                            director_name:
+                              type: string
+                              description: Name of the director
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
@@ -1514,15 +1618,49 @@ paths:
       summary: List movie-producer associations
       security:
         - ApiKeyAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number for pagination
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: Number of items per page (max 100)
       responses:
         '200':
-          description: List of movie-producer associations
+          description: Paginated list of movie-producer associations with movie and producer names
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Movie_Producer'
+                type: object
+                properties:
+                  page:
+                    type: integer
+                    description: Current page number
+                  pageSize:
+                    type: integer
+                    description: Number of items per page
+                  results:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/Movie_Producer'
+                        - type: object
+                          properties:
+                            movie_title:
+                              type: string
+                              description: Title of the movie
+                            producer_name:
+                              type: string
+                              description: Name of the producer
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
@@ -1587,15 +1725,49 @@ paths:
       summary: List movie-studio associations
       security:
         - ApiKeyAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number for pagination
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: Number of items per page (max 100)
       responses:
         '200':
-          description: List of movie-studio associations
+          description: Paginated list of movie-studio associations with movie and studio names
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Movie_Studios'
+                type: object
+                properties:
+                  page:
+                    type: integer
+                    description: Current page number
+                  pageSize:
+                    type: integer
+                    description: Number of items per page
+                  results:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/Movie_Studios'
+                        - type: object
+                          properties:
+                            movie_title:
+                              type: string
+                              description: Title of the movie
+                            studio_name:
+                              type: string
+                              description: Name of the studio
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
