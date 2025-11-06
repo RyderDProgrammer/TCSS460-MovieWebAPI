@@ -4,7 +4,7 @@ import { query, run } from '../core/utilities/database.js';
 // GET /genres - List all genres
 export const getAllGenres = async (req: Request, res: Response): Promise<void> => {
   try {
-    const sql = 'SELECT * FROM genres ORDER BY genre_name';
+    const sql = 'SELECT * FROM Genres ORDER BY genre_name';
     const genres = await query(sql, []);
 
     res.status(200).json(genres);
@@ -24,7 +24,7 @@ export const getGenreById = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    const sql = 'SELECT * FROM genres WHERE genre_id = ?';
+    const sql = 'SELECT * FROM Genres WHERE genre_id = ?';
     const genres = await query(sql, [genreId]);
 
     if (genres.length === 0) {
@@ -49,10 +49,10 @@ export const createGenre = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    const sql = 'INSERT INTO genres (genre_name) VALUES (?)';
+    const sql = 'INSERT INTO Genres (genre_name) VALUES (?)';
     const result = await run(sql, [name]);
 
-    const newGenre = await query('SELECT * FROM genres WHERE genre_id = ?', [result.lastID]);
+    const newGenre = await query('SELECT * FROM Genres WHERE genre_id = ?', [result.lastID]);
 
     res.status(201).json(newGenre[0]);
   } catch (error) {
@@ -72,7 +72,7 @@ export const updateGenre = async (req: Request, res: Response): Promise<void> =>
     }
 
     // Check if genre exists
-    const existing = await query('SELECT * FROM genres WHERE genre_id = ?', [genreId]);
+    const existing = await query('SELECT * FROM Genres WHERE genre_id = ?', [genreId]);
     if (existing.length === 0) {
       res.status(404).json({ message: 'Not found' });
       return;
@@ -85,10 +85,10 @@ export const updateGenre = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    const sql = 'UPDATE genres SET genre_name = ? WHERE genre_id = ?';
+    const sql = 'UPDATE Genres SET genre_name = ? WHERE genre_id = ?';
     await run(sql, [name, genreId]);
 
-    const updatedGenre = await query('SELECT * FROM genres WHERE genre_id = ?', [genreId]);
+    const updatedGenre = await query('SELECT * FROM Genres WHERE genre_id = ?', [genreId]);
 
     res.status(200).json(updatedGenre[0]);
   } catch (error) {
@@ -108,13 +108,13 @@ export const deleteGenre = async (req: Request, res: Response): Promise<void> =>
     }
 
     // Check if genre exists
-    const existing = await query('SELECT * FROM genres WHERE genre_id = ?', [genreId]);
+    const existing = await query('SELECT * FROM Genres WHERE genre_id = ?', [genreId]);
     if (existing.length === 0) {
       res.status(404).json({ message: 'Not found' });
       return;
     }
 
-    const sql = 'DELETE FROM genres WHERE genre_id = ?';
+    const sql = 'DELETE FROM Genres WHERE genre_id = ?';
     await run(sql, [genreId]);
 
     res.status(204).send();

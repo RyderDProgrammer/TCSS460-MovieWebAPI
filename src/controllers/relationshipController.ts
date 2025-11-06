@@ -6,7 +6,7 @@ import { query, run } from '../core/utilities/database.js';
 // GET /movie_genres - List movie-genre associations
 export const getAllMovieGenres = async (req: Request, res: Response): Promise<void> => {
   try {
-    const sql = 'SELECT * FROM movie_genres';
+    const sql = 'SELECT * FROM Movie_Genres';
     const movieGenres = await query(sql, []);
     res.status(200).json(movieGenres);
   } catch (error) {
@@ -25,11 +25,11 @@ export const createMovieGenre = async (req: Request, res: Response): Promise<voi
       return;
     }
 
-    const sql = 'INSERT INTO movie_genres (movie_id, genre_id) VALUES (?, ?)';
+    const sql = 'INSERT INTO Movie_Genres (movie_id, genre_id) VALUES (?, ?)';
     const result = await run(sql, [movie_id, genre_id]);
 
     const newMovieGenre = await query(
-      'SELECT * FROM movie_genres WHERE movie_genre_id = ?',
+      'SELECT * FROM Movie_Genres WHERE movie_genre_id = ?',
       [result.lastID]
     );
 
@@ -51,7 +51,7 @@ export const deleteMovieGenre = async (req: Request, res: Response): Promise<voi
     }
 
     const existing = await query(
-      'SELECT * FROM movie_genres WHERE movie_genre_id = ?',
+      'SELECT * FROM Movie_Genres WHERE movie_genre_id = ?',
       [movieGenreId]
     );
 
@@ -60,7 +60,7 @@ export const deleteMovieGenre = async (req: Request, res: Response): Promise<voi
       return;
     }
 
-    const sql = 'DELETE FROM movie_genres WHERE movie_genre_id = ?';
+    const sql = 'DELETE FROM Movie_Genres WHERE movie_genre_id = ?';
     await run(sql, [movieGenreId]);
 
     res.status(204).send();
@@ -75,7 +75,7 @@ export const deleteMovieGenre = async (req: Request, res: Response): Promise<voi
 // GET /movie_cast - List cast entries
 export const getAllMovieCast = async (req: Request, res: Response): Promise<void> => {
   try {
-    const sql = 'SELECT * FROM movie_cast ORDER BY cast_order';
+    const sql = 'SELECT * FROM Cast ORDER BY cast_order';
     const movieCast = await query(sql, []);
     res.status(200).json(movieCast);
   } catch (error) {
@@ -94,7 +94,7 @@ export const getMovieCastById = async (req: Request, res: Response): Promise<voi
       return;
     }
 
-    const sql = 'SELECT * FROM movie_cast WHERE uniqueId = ?';
+    const sql = 'SELECT * FROM Cast WHERE uniqueId = ?';
     const cast = await query(sql, [uniqueId]);
 
     if (cast.length === 0) {
@@ -120,7 +120,7 @@ export const createMovieCast = async (req: Request, res: Response): Promise<void
     }
 
     const sql = `
-      INSERT INTO movie_cast (movie_id, person_id, character_name, cast_order)
+      INSERT INTO Cast (movie_id, person_id, character_name, cast_order)
       VALUES (?, ?, ?, ?)
     `;
     const result = await run(sql, [
@@ -130,7 +130,7 @@ export const createMovieCast = async (req: Request, res: Response): Promise<void
       cast_order || null
     ]);
 
-    const newCast = await query('SELECT * FROM movie_cast WHERE uniqueId = ?', [result.lastID]);
+    const newCast = await query('SELECT * FROM Cast WHERE uniqueId = ?', [result.lastID]);
 
     res.status(201).json(newCast[0]);
   } catch (error) {
@@ -149,7 +149,7 @@ export const updateMovieCast = async (req: Request, res: Response): Promise<void
       return;
     }
 
-    const existing = await query('SELECT * FROM movie_cast WHERE uniqueId = ?', [uniqueId]);
+    const existing = await query('SELECT * FROM Cast WHERE uniqueId = ?', [uniqueId]);
     if (existing.length === 0) {
       res.status(404).json({ message: 'Not found' });
       return;
@@ -163,7 +163,7 @@ export const updateMovieCast = async (req: Request, res: Response): Promise<void
     }
 
     const sql = `
-      UPDATE movie_cast 
+      UPDATE Cast 
       SET movie_id = ?, person_id = ?, character_name = ?, cast_order = ?
       WHERE uniqueId = ?
     `;
@@ -175,7 +175,7 @@ export const updateMovieCast = async (req: Request, res: Response): Promise<void
       uniqueId
     ]);
 
-    const updatedCast = await query('SELECT * FROM movie_cast WHERE uniqueId = ?', [uniqueId]);
+    const updatedCast = await query('SELECT * FROM Cast WHERE uniqueId = ?', [uniqueId]);
 
     res.status(200).json(updatedCast[0]);
   } catch (error) {
@@ -194,13 +194,13 @@ export const deleteMovieCast = async (req: Request, res: Response): Promise<void
       return;
     }
 
-    const existing = await query('SELECT * FROM movie_cast WHERE uniqueId = ?', [uniqueId]);
+    const existing = await query('SELECT * FROM Cast WHERE uniqueId = ?', [uniqueId]);
     if (existing.length === 0) {
       res.status(404).json({ message: 'Not found' });
       return;
     }
 
-    const sql = 'DELETE FROM movie_cast WHERE uniqueId = ?';
+    const sql = 'DELETE FROM Cast WHERE uniqueId = ?';
     await run(sql, [uniqueId]);
 
     res.status(204).send();
@@ -215,7 +215,7 @@ export const deleteMovieCast = async (req: Request, res: Response): Promise<void
 // GET /movie_directors - List movie-director associations
 export const getAllMovieDirectors = async (req: Request, res: Response): Promise<void> => {
   try {
-    const sql = 'SELECT * FROM movie_directors';
+    const sql = 'SELECT * FROM Movie_Directors';
     const movieDirectors = await query(sql, []);
     res.status(200).json(movieDirectors);
   } catch (error) {
@@ -234,11 +234,11 @@ export const createMovieDirector = async (req: Request, res: Response): Promise<
       return;
     }
 
-    const sql = 'INSERT INTO movie_directors (movie_id, person_id) VALUES (?, ?)';
+    const sql = 'INSERT INTO Movie_Directors (movie_id, person_id) VALUES (?, ?)';
     const result = await run(sql, [movie_id, person_id]);
 
     const newMovieDirector = await query(
-      'SELECT * FROM movie_directors WHERE movie_director_id = ?',
+      'SELECT * FROM Movie_Directors WHERE movie_director_id = ?',
       [result.lastID]
     );
 
@@ -260,7 +260,7 @@ export const deleteMovieDirector = async (req: Request, res: Response): Promise<
     }
 
     const existing = await query(
-      'SELECT * FROM movie_directors WHERE movie_director_id = ?',
+      'SELECT * FROM Movie_Directors WHERE movie_director_id = ?',
       [movieDirectorId]
     );
 
@@ -269,7 +269,7 @@ export const deleteMovieDirector = async (req: Request, res: Response): Promise<
       return;
     }
 
-    const sql = 'DELETE FROM movie_directors WHERE movie_director_id = ?';
+    const sql = 'DELETE FROM Movie_Directors WHERE movie_director_id = ?';
     await run(sql, [movieDirectorId]);
 
     res.status(204).send();
@@ -284,7 +284,7 @@ export const deleteMovieDirector = async (req: Request, res: Response): Promise<
 // GET /movie_producers - List movie-producer associations
 export const getAllMovieProducers = async (req: Request, res: Response): Promise<void> => {
   try {
-    const sql = 'SELECT * FROM movie_producers';
+    const sql = 'SELECT * FROM Movie_Producers';
     const movieProducers = await query(sql, []);
     res.status(200).json(movieProducers);
   } catch (error) {
@@ -303,11 +303,11 @@ export const createMovieProducer = async (req: Request, res: Response): Promise<
       return;
     }
 
-    const sql = 'INSERT INTO movie_producers (movie_id, person_id) VALUES (?, ?)';
+    const sql = 'INSERT INTO Movie_Producers (movie_id, person_id) VALUES (?, ?)';
     const result = await run(sql, [movie_id, person_id]);
 
     const newMovieProducer = await query(
-      'SELECT * FROM movie_producers WHERE movie_producer_id = ?',
+      'SELECT * FROM Movie_Producers WHERE movie_producer_id = ?',
       [result.lastID]
     );
 
@@ -329,7 +329,7 @@ export const deleteMovieProducer = async (req: Request, res: Response): Promise<
     }
 
     const existing = await query(
-      'SELECT * FROM movie_producers WHERE movie_producer_id = ?',
+      'SELECT * FROM Movie_Producers WHERE movie_producer_id = ?',
       [movieProducerId]
     );
 
@@ -338,7 +338,7 @@ export const deleteMovieProducer = async (req: Request, res: Response): Promise<
       return;
     }
 
-    const sql = 'DELETE FROM movie_producers WHERE movie_producer_id = ?';
+    const sql = 'DELETE FROM Movie_Producers WHERE movie_producer_id = ?';
     await run(sql, [movieProducerId]);
 
     res.status(204).send();
@@ -353,7 +353,7 @@ export const deleteMovieProducer = async (req: Request, res: Response): Promise<
 // GET /movie_studios - List movie-studio associations
 export const getAllMovieStudios = async (req: Request, res: Response): Promise<void> => {
   try {
-    const sql = 'SELECT * FROM movie_studios';
+    const sql = 'SELECT * FROM Movie_Studios';
     const movieStudios = await query(sql, []);
     res.status(200).json(movieStudios);
   } catch (error) {
@@ -372,11 +372,11 @@ export const createMovieStudio = async (req: Request, res: Response): Promise<vo
       return;
     }
 
-    const sql = 'INSERT INTO movie_studios (movie_id, studio_id) VALUES (?, ?)';
+    const sql = 'INSERT INTO Movie_Studios (movie_id, studio_id) VALUES (?, ?)';
     const result = await run(sql, [movie_id, studio_id]);
 
     const newMovieStudio = await query(
-      'SELECT * FROM movie_studios WHERE movie_studios_id = ?',
+      'SELECT * FROM Movie_Studios WHERE movie_studios_id = ?',
       [result.lastID]
     );
 
@@ -398,7 +398,7 @@ export const deleteMovieStudio = async (req: Request, res: Response): Promise<vo
     }
 
     const existing = await query(
-      'SELECT * FROM movie_studios WHERE movie_studios_id = ?',
+      'SELECT * FROM Movie_Studios WHERE movie_studios_id = ?',
       [movieStudiosId]
     );
 
@@ -407,7 +407,7 @@ export const deleteMovieStudio = async (req: Request, res: Response): Promise<vo
       return;
     }
 
-    const sql = 'DELETE FROM movie_studios WHERE movie_studios_id = ?';
+    const sql = 'DELETE FROM Movie_Studios WHERE movie_studios_id = ?';
     await run(sql, [movieStudiosId]);
 
     res.status(204).send();
