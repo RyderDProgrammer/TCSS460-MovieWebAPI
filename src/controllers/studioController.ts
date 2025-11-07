@@ -1,38 +1,45 @@
 import { Request, Response } from 'express';
 import { query, run } from '../core/utilities/database.js';
 
-// GET /studios - List all studios
+// GET /studios - List all studios with pagination
 export const getAllStudios = async (req: Request, res: Response): Promise<void> => {
   try {
-    const sql = 'SELECT * FROM Studios ORDER BY studio_id';
-    const studios = await query(sql, []);
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
+    const pageSize = Math.min(parseInt(req.query.pageSize as string) || 20, 100);
+    const offset = (page - 1) * pageSize;
 
-    res.status(200).json(studios);
+    const sql = 'SELECT * FROM Studios ORDER BY studio_id LIMIT ? OFFSET ?';
+    const studios = await query(sql, [pageSize, offset]);
+
+    res.status(200).json({ page, pageSize, results: studios });
   } catch (error) {
     console.error('Error fetching studios:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-// GET /studios/:studio_name - Get studio by name
+// GET /studios/:studio_name - Get studio by name with fuzzy search and pagination
 export const getStudioByName = async (req: Request, res: Response): Promise<void> => {
   try {
     const studioName = req.params.studio_name;
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
+    const pageSize = Math.min(parseInt(req.query.pageSize as string) || 10, 10);
+    const offset = (page - 1) * pageSize;
 
     if (!studioName) {
       res.status(400).json({ error: 'Invalid studio name' });
       return;
     }
 
-    const sql = 'SELECT * FROM Studios WHERE LOWER(studio_name) = LOWER(?)';
-    const studios = await query(sql, [`%${studioName}%`]);
+    const sql = 'SELECT * FROM Studios WHERE LOWER(studio_name) LIKE LOWER(?) LIMIT ? OFFSET ?';
+    const studios = await query(sql, [`%${studioName}%`, pageSize, offset]);
 
     if (studios.length === 0) {
       res.status(404).json({ message: 'Not found' });
       return;
     }
 
-    res.status(200).json(studios[0]);
+    res.status(200).json({ page, pageSize, results: studios });
   } catch (error) {
     console.error('Error fetching studio:', error);
     res.status(500).json({ message: 'Internal server error' });

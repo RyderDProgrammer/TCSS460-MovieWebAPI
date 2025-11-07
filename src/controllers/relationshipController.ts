@@ -3,21 +3,32 @@ import { query, run } from '../core/utilities/database.js';
 
 // ==================== MOVIE GENRES ====================
 
-// GET /movie_genres - List movie-genre associations
+// GET /movie_genres - List movie-genre associations with optional search
 export const getAllMovieGenres = async (req: Request, res: Response): Promise<void> => {
   try {
     const page = Math.max(parseInt(req.query.page as string) || 1, 1);
     const pageSize = Math.min(parseInt(req.query.pageSize as string) || 10, 100);
     const offset = (page - 1) * pageSize;
+    const searchQuery = req.query.q as string;
 
-    const sql = `
+    let sql = `
       SELECT mg.*, m.title as movie_title, g.genre_name
       FROM Movie_Genres mg
       JOIN Movies m ON mg.movie_id = m.movie_id
       JOIN Genres g ON mg.genre_id = g.genre_id
-      LIMIT ? OFFSET ?
     `;
-    const movieGenres = await query(sql, [pageSize, offset]);
+
+    const params: any[] = [];
+
+    if (searchQuery) {
+      sql += ` WHERE LOWER(m.title) LIKE LOWER(?) OR LOWER(g.genre_name) LIKE LOWER(?)`;
+      params.push(`%${searchQuery}%`, `%${searchQuery}%`);
+    }
+
+    sql += ` LIMIT ? OFFSET ?`;
+    params.push(pageSize, offset);
+
+    const movieGenres = await query(sql, params);
     res.status(200).json({ page, pageSize, results: movieGenres });
   } catch (error) {
     console.error('Error fetching movie genres:', error);
@@ -82,22 +93,32 @@ export const deleteMovieGenre = async (req: Request, res: Response): Promise<voi
 
 // ==================== MOVIE CAST ====================
 
-// GET /movie_cast - List cast entries
+// GET /movie_cast - List cast entries with optional search
 export const getAllMovieCast = async (req: Request, res: Response): Promise<void> => {
   try {
     const page = Math.max(parseInt(req.query.page as string) || 1, 1);
     const pageSize = Math.min(parseInt(req.query.pageSize as string) || 10, 100);
     const offset = (page - 1) * pageSize;
+    const searchQuery = req.query.q as string;
 
-    const sql = `
+    let sql = `
       SELECT c.*, m.title as movie_title, a.actor_name
       FROM Cast c
       JOIN Movies m ON c.movie_id = m.movie_id
       JOIN Actors a ON c.actor_id = a.actor_id
-      ORDER BY c.cast_id
-      LIMIT ? OFFSET ?
     `;
-    const movieCast = await query(sql, [pageSize, offset]);
+
+    const params: any[] = [];
+
+    if (searchQuery) {
+      sql += ` WHERE LOWER(m.title) LIKE LOWER(?) OR LOWER(a.actor_name) LIKE LOWER(?) OR LOWER(c.character_name) LIKE LOWER(?)`;
+      params.push(`%${searchQuery}%`, `%${searchQuery}%`, `%${searchQuery}%`);
+    }
+
+    sql += ` ORDER BY c.cast_id LIMIT ? OFFSET ?`;
+    params.push(pageSize, offset);
+
+    const movieCast = await query(sql, params);
     res.status(200).json({ page, pageSize, results: movieCast });
   } catch (error) {
     console.error('Error fetching movie cast:', error);
@@ -231,21 +252,32 @@ export const deleteMovieCast = async (req: Request, res: Response): Promise<void
 
 // ==================== MOVIE DIRECTORS ====================
 
-// GET /movie_directors - List movie-director associations
+// GET /movie_directors - List movie-director associations with optional search
 export const getAllMovieDirectors = async (req: Request, res: Response): Promise<void> => {
   try {
     const page = Math.max(parseInt(req.query.page as string) || 1, 1);
     const pageSize = Math.min(parseInt(req.query.pageSize as string) || 10, 100);
     const offset = (page - 1) * pageSize;
+    const searchQuery = req.query.q as string;
 
-    const sql = `
+    let sql = `
       SELECT md.*, m.title as movie_title, d.director_name
       FROM Movie_Directors md
       JOIN Movies m ON md.movie_id = m.movie_id
       JOIN Directors d ON md.director_id = d.director_id
-      LIMIT ? OFFSET ?
     `;
-    const movieDirectors = await query(sql, [pageSize, offset]);
+
+    const params: any[] = [];
+
+    if (searchQuery) {
+      sql += ` WHERE LOWER(m.title) LIKE LOWER(?) OR LOWER(d.director_name) LIKE LOWER(?)`;
+      params.push(`%${searchQuery}%`, `%${searchQuery}%`);
+    }
+
+    sql += ` LIMIT ? OFFSET ?`;
+    params.push(pageSize, offset);
+
+    const movieDirectors = await query(sql, params);
     res.status(200).json({ page, pageSize, results: movieDirectors });
   } catch (error) {
     console.error('Error fetching movie directors:', error);
@@ -310,21 +342,32 @@ export const deleteMovieDirector = async (req: Request, res: Response): Promise<
 
 // ==================== MOVIE PRODUCERS ====================
 
-// GET /movie_producers - List movie-producer associations
+// GET /movie_producers - List movie-producer associations with optional search
 export const getAllMovieProducers = async (req: Request, res: Response): Promise<void> => {
   try {
     const page = Math.max(parseInt(req.query.page as string) || 1, 1);
     const pageSize = Math.min(parseInt(req.query.pageSize as string) || 10, 100);
     const offset = (page - 1) * pageSize;
+    const searchQuery = req.query.q as string;
 
-    const sql = `
+    let sql = `
       SELECT mp.*, m.title as movie_title, p.producer_name
       FROM Movie_Producers mp
       JOIN Movies m ON mp.movie_id = m.movie_id
       JOIN Producers p ON mp.producer_id = p.producer_id
-      LIMIT ? OFFSET ?
     `;
-    const movieProducers = await query(sql, [pageSize, offset]);
+
+    const params: any[] = [];
+
+    if (searchQuery) {
+      sql += ` WHERE LOWER(m.title) LIKE LOWER(?) OR LOWER(p.producer_name) LIKE LOWER(?)`;
+      params.push(`%${searchQuery}%`, `%${searchQuery}%`);
+    }
+
+    sql += ` LIMIT ? OFFSET ?`;
+    params.push(pageSize, offset);
+
+    const movieProducers = await query(sql, params);
     res.status(200).json({ page, pageSize, results: movieProducers });
   } catch (error) {
     console.error('Error fetching movie producers:', error);
@@ -389,21 +432,32 @@ export const deleteMovieProducer = async (req: Request, res: Response): Promise<
 
 // ==================== MOVIE STUDIOS ====================
 
-// GET /movie_studios - List movie-studio associations
+// GET /movie_studios - List movie-studio associations with optional search
 export const getAllMovieStudios = async (req: Request, res: Response): Promise<void> => {
   try {
     const page = Math.max(parseInt(req.query.page as string) || 1, 1);
     const pageSize = Math.min(parseInt(req.query.pageSize as string) || 10, 100);
     const offset = (page - 1) * pageSize;
+    const searchQuery = req.query.q as string;
 
-    const sql = `
+    let sql = `
       SELECT ms.*, m.title as movie_title, s.studio_name
       FROM Movie_Studios ms
       JOIN Movies m ON ms.movie_id = m.movie_id
       JOIN Studios s ON ms.studio_id = s.studio_id
-      LIMIT ? OFFSET ?
     `;
-    const movieStudios = await query(sql, [pageSize, offset]);
+
+    const params: any[] = [];
+
+    if (searchQuery) {
+      sql += ` WHERE LOWER(m.title) LIKE LOWER(?) OR LOWER(s.studio_name) LIKE LOWER(?)`;
+      params.push(`%${searchQuery}%`, `%${searchQuery}%`);
+    }
+
+    sql += ` LIMIT ? OFFSET ?`;
+    params.push(pageSize, offset);
+
+    const movieStudios = await query(sql, params);
     res.status(200).json({ page, pageSize, results: movieStudios });
   } catch (error) {
     console.error('Error fetching movie studios:', error);

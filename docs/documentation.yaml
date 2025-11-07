@@ -551,28 +551,76 @@ paths:
           $ref: '#/components/responses/ServerError'
 
   /movies/{title}:
-    parameters:
-      - in: path
-        name: title
-        required: true
-        schema:
-          type: string
-        description: The title of the movie
-
     get:
       tags:
         - movies
-      summary: Get movie by title
-      description: Returns detailed information about a specific movie.
+      summary: Get movie by title with fuzzy search and pagination
+      description: Returns detailed information about movies matching the title search with pagination support. Maximum 10 results per page.
+      parameters:
+        - in: path
+          name: title
+          required: true
+          schema:
+            type: string
+          description: The title of the movie
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10
+            default: 10
+          description: Number of items per page
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: Movie details
+          description: Paginated list of movies matching the title search
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Movie'
+                type: object
+                properties:
+                  page:
+                    type: integer
+                    description: Current page number
+                    example: 1
+                  pageSize:
+                    type: integer
+                    description: Number of items per page
+                    example: 10
+                  results:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/Movie'
+                        - type: object
+                          properties:
+                            genres:
+                              type: array
+                              items:
+                                type: string
+                              description: List of genre names for this movie
+                              example: ["Action", "Sci-Fi"]
+                            cast:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  actor_name:
+                                    type: string
+                                    example: "Leonardo DiCaprio"
+                                  character_name:
+                                    type: string
+                                    example: "Dom Cobb"
+                              description: List of cast members (up to 10)
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -774,18 +822,42 @@ paths:
     get:
       tags:
         - studios
-      summary: List all studios
+      summary: List all studios with pagination
+      description: Returns a paginated list of studios.
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of items per page
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: List of studios
+          description: Paginated list of studios
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Studio'
+                type: object
+                properties:
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Studio'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
@@ -818,27 +890,51 @@ paths:
           $ref: '#/components/responses/ServerError'
 
   /studios/{studio_name}:
-    parameters:
-      - in: path
-        name: studio_name
-        required: true
-        schema:
-          type: string
-        description: The name of the studio
-
     get:
       tags:
         - studios
-      summary: Get studio by name
+      summary: Get studio by name with fuzzy search and pagination
+      description: Returns studios matching the studio name search with pagination support. Maximum 10 results per page.
+      parameters:
+        - in: path
+          name: studio_name
+          required: true
+          schema:
+            type: string
+          description: The name of the studio
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10
+            default: 10
+          description: Number of items per page
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: Studio details
+          description: Paginated list of studios matching the name search
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Studio'
+                type: object
+                properties:
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Studio'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -907,18 +1003,42 @@ paths:
     get:
       tags:
         - actors
-      summary: List all actors
+      summary: List all actors with pagination
+      description: Returns a paginated list of actors.
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of items per page
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: List of actors
+          description: Paginated list of actors
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Actor'
+                type: object
+                properties:
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Actor'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
@@ -951,27 +1071,51 @@ paths:
           $ref: '#/components/responses/ServerError'
 
   /actors/{actor_name}:
-    parameters:
-      - in: path
-        name: actor_name
-        required: true
-        schema:
-          type: string
-        description: The name of the actor
-
     get:
       tags:
         - actors
-      summary: Get actor by name
+      summary: Get actor by name with fuzzy search and pagination
+      description: Returns actors matching the actor name search with pagination support. Maximum 10 results per page.
+      parameters:
+        - in: path
+          name: actor_name
+          required: true
+          schema:
+            type: string
+          description: The name of the actor
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10
+            default: 10
+          description: Number of items per page
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: Actor details
+          description: Paginated list of actors matching the name search
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Actor'
+                type: object
+                properties:
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Actor'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1037,36 +1181,57 @@ paths:
           $ref: '#/components/responses/ServerError'
 
   /actors/{actor_id}/movies:
-    parameters:
-      - in: path
-        name: actor_id
-        required: true
-        schema:
-          type: integer
-    
     get:
       tags:
         - actors
-      summary: Get all movies for an actor
-      description: Returns all movies featuring the specified actor, including character names
+      summary: Get all movies for an actor with pagination
+      description: Returns all movies featuring the specified actor with pagination support, including character names
+      parameters:
+        - in: path
+          name: actor_id
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of items per page
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: List of movies for the actor
+          description: Paginated list of movies for the actor
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  allOf:
-                    - $ref: '#/components/schemas/Movie'
-                    - type: object
-                      properties:
-                        character_name:
-                          type: string
-                          description: Character played in this movie
-                          example: "Dom Cobb"
+                type: object
+                properties:
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  results:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/Movie'
+                        - type: object
+                          properties:
+                            character_name:
+                              type: string
+                              description: Character played in this movie
+                              example: "Dom Cobb"
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1078,18 +1243,42 @@ paths:
     get:
       tags:
         - directors
-      summary: List all directors
+      summary: List all directors with pagination
+      description: Returns a paginated list of directors.
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of items per page
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: List of directors
+          description: Paginated list of directors
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Director'
+                type: object
+                properties:
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Director'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
@@ -1122,27 +1311,51 @@ paths:
           $ref: '#/components/responses/ServerError'
 
   /directors/{director_name}:
-    parameters:
-      - in: path
-        name: director_name
-        required: true
-        schema:
-          type: string
-        description: The name of the director
-
     get:
       tags:
         - directors
-      summary: Get director by name
+      summary: Get director by name with fuzzy search and pagination
+      description: Returns directors matching the director name search with pagination support. Maximum 10 results per page.
+      parameters:
+        - in: path
+          name: director_name
+          required: true
+          schema:
+            type: string
+          description: The name of the director
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10
+            default: 10
+          description: Number of items per page
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: Director details
+          description: Paginated list of directors matching the name search
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Director'
+                type: object
+                properties:
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Director'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1208,29 +1421,50 @@ paths:
           $ref: '#/components/responses/ServerError'
 
   /directors/{director_id}/movies:
-    parameters:
-      - in: path
-        name: director_id
-        required: true
-        schema:
-          type: integer
-    
     get:
       tags:
         - directors
-      summary: Get all movies for a director
-      description: Returns all movies directed by the specified director
+      summary: Get all movies for a director with pagination
+      description: Returns all movies directed by the specified director with pagination support
+      parameters:
+        - in: path
+          name: director_id
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of items per page
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: List of movies for the director
+          description: Paginated list of movies for the director
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Movie'
+                type: object
+                properties:
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Movie'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1242,8 +1476,8 @@ paths:
     get:
       tags:
         - relationships
-      summary: List movie-genre associations with pagination
-      description: Returns a paginated list of movie-genre associations including movie titles and genre names
+      summary: List movie-genre associations with pagination and search
+      description: Returns a paginated list of movie-genre associations including movie titles and genre names with optional search
       parameters:
         - in: query
           name: page
@@ -1260,6 +1494,11 @@ paths:
             maximum: 100
             default: 10
           description: Number of items per page
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Search query to filter by movie title or genre name
       security:
         - ApiKeyAuth: []
       responses:
@@ -1350,8 +1589,8 @@ paths:
     get:
       tags:
         - relationships
-      summary: List all cast entries with pagination
-      description: Returns a paginated list of cast entries including movie titles and actor names
+      summary: List all cast entries with pagination and search
+      description: Returns a paginated list of cast entries including movie titles and actor names with optional search
       parameters:
         - in: query
           name: page
@@ -1368,6 +1607,11 @@ paths:
             maximum: 100
             default: 10
           description: Number of items per page
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Search query to filter by movie title, actor name, or character name
       security:
         - ApiKeyAuth: []
       responses:
@@ -1508,7 +1752,8 @@ paths:
     get:
       tags:
         - relationships
-      summary: List movie-director associations
+      summary: List movie-director associations with pagination and search
+      description: Returns a paginated list of movie-director associations with optional search
       security:
         - ApiKeyAuth: []
       parameters:
@@ -1527,6 +1772,11 @@ paths:
             maximum: 100
             default: 10
           description: Number of items per page (max 100)
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Search query to filter by movie title or director name
       responses:
         '200':
           description: Paginated list of movie-director associations with movie and director names
@@ -1615,7 +1865,8 @@ paths:
     get:
       tags:
         - relationships
-      summary: List movie-producer associations
+      summary: List movie-producer associations with pagination and search
+      description: Returns a paginated list of movie-producer associations with optional search
       security:
         - ApiKeyAuth: []
       parameters:
@@ -1634,6 +1885,11 @@ paths:
             maximum: 100
             default: 10
           description: Number of items per page (max 100)
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Search query to filter by movie title or producer name
       responses:
         '200':
           description: Paginated list of movie-producer associations with movie and producer names
@@ -1722,7 +1978,8 @@ paths:
     get:
       tags:
         - relationships
-      summary: List movie-studio associations
+      summary: List movie-studio associations with pagination and search
+      description: Returns a paginated list of movie-studio associations with optional search
       security:
         - ApiKeyAuth: []
       parameters:
@@ -1741,6 +1998,11 @@ paths:
             maximum: 100
             default: 10
           description: Number of items per page (max 100)
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Search query to filter by movie title or studio name
       responses:
         '200':
           description: Paginated list of movie-studio associations with movie and studio names

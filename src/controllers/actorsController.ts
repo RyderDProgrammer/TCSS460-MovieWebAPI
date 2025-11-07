@@ -1,48 +1,58 @@
 import { Request, Response } from 'express';
 import { query, run } from '../core/utilities/database.js';
 
-// GET /actors - List all actors
+// GET /actors - List all actors with pagination
 export const getAllActors = async (req: Request, res: Response): Promise<void> => {
   try {
-    const sql = 'SELECT * FROM Actors ORDER BY actor_name';
-    const actors = await query(sql, []);
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
+    const pageSize = Math.min(parseInt(req.query.pageSize as string) || 20, 100);
+    const offset = (page - 1) * pageSize;
 
-    res.status(200).json(actors);
+    const sql = 'SELECT * FROM Actors ORDER BY actor_name LIMIT ? OFFSET ?';
+    const actors = await query(sql, [pageSize, offset]);
+
+    res.status(200).json({ page, pageSize, results: actors });
   } catch (error) {
     console.error('Error fetching actors:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-// GET /actors/:actor_name - Get actor by name (fuzzy search)
+// GET /actors/:actor_name - Get actor by name with fuzzy search and pagination
 export const getActorByName = async (req: Request, res: Response): Promise<void> => {
   try {
     const actorName = req.params.actor_name;
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
+    const pageSize = Math.min(parseInt(req.query.pageSize as string) || 10, 10);
+    const offset = (page - 1) * pageSize;
 
     if (!actorName) {
       res.status(400).json({ error: 'Invalid actor name' });
       return;
     }
 
-    const sql = 'SELECT * FROM Actors WHERE LOWER(actor_name) LIKE LOWER(?)';
-    const actors = await query(sql, [`%${actorName}%`]);
+    const sql = 'SELECT * FROM Actors WHERE LOWER(actor_name) LIKE LOWER(?) LIMIT ? OFFSET ?';
+    const actors = await query(sql, [`%${actorName}%`, pageSize, offset]);
 
     if (actors.length === 0) {
       res.status(404).json({ message: 'Not found' });
       return;
     }
 
-    res.status(200).json(actors);
+    res.status(200).json({ page, pageSize, results: actors });
   } catch (error) {
     console.error('Error fetching actor:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-// GET /actors/:actor_id/movies - Get all movies for an actor
+// GET /actors/:actor_id/movies - Get all movies for an actor with pagination
 export const getActorMovies = async (req: Request, res: Response): Promise<void> => {
   try {
     const actorId = parseInt(req.params.actor_id);
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
+    const pageSize = Math.min(parseInt(req.query.pageSize as string) || 20, 100);
+    const offset = (page - 1) * pageSize;
 
     if (isNaN(actorId)) {
       res.status(400).json({ error: 'Invalid actor ID' });
@@ -55,10 +65,11 @@ export const getActorMovies = async (req: Request, res: Response): Promise<void>
       INNER JOIN Cast c ON m.movie_id = c.movie_id
       WHERE c.actor_id = ?
       ORDER BY m.release_date DESC
+      LIMIT ? OFFSET ?
     `;
-    const movies = await query(sql, [actorId]);
+    const movies = await query(sql, [actorId, pageSize, offset]);
 
-    res.status(200).json(movies);
+    res.status(200).json({ page, pageSize, results: movies });
   } catch (error) {
     console.error('Error fetching actor movies:', error);
     res.status(500).json({ message: 'Internal server error' });

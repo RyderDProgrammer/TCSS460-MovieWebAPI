@@ -72,16 +72,19 @@ export const getMoviesByYear = (req: Request, res: Response) => {
 };
 
 /**
- * GET /movies/:title - Get detailed movie information by fuzzy title match
+ * GET /movies/:title - Get detailed movie information by fuzzy title match with pagination
  */
 export const getMovieByTitle = (req: Request, res: Response) => {
   const title = req.params.title;
+  const page = Math.max(parseInt(req.query.page as string) || 1, 1);
+  const pageSize = Math.min(parseInt(req.query.pageSize as string) || 10, 10);
+  const offset = (page - 1) * pageSize;
 
   if (!title) return res.status(400).json({ error: 'Invalid title' });
 
-  const movieSql = `SELECT * FROM Movies WHERE LOWER(title) LIKE LOWER(?) LIMIT 5`;
+  const movieSql = `SELECT * FROM Movies WHERE LOWER(title) LIKE LOWER(?) LIMIT ? OFFSET ?`;
 
-  db.all(movieSql, [`%${title}%`], (err: Error | null, movies: Movie[]) => {
+  db.all(movieSql, [`%${title}%`, pageSize, offset], (err: Error | null, movies: Movie[]) => {
     if (err) return res.status(500).json({ error: err.message });
     if (!movies || movies.length === 0)
       return res.status(404).json({ error: 'No movies found' });
@@ -119,7 +122,7 @@ export const getMovieByTitle = (req: Request, res: Response) => {
     });
 
     Promise.all(moviePromises)
-      .then(results => res.json(results))
+      .then(results => res.json({ page, pageSize, results }))
       .catch(error => res.status(500).json({ error: error.message }));
   });
 };

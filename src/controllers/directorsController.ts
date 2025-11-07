@@ -1,48 +1,58 @@
 import { Request, Response } from 'express';
 import { query, run } from '../core/utilities/database.js';
 
-// GET /directors - List all directors
+// GET /directors - List all directors with pagination
 export const getAllDirectors = async (req: Request, res: Response): Promise<void> => {
   try {
-    const sql = 'SELECT * FROM Directors ORDER BY director_name';
-    const directors = await query(sql, []);
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
+    const pageSize = Math.min(parseInt(req.query.pageSize as string) || 20, 100);
+    const offset = (page - 1) * pageSize;
 
-    res.status(200).json(directors);
+    const sql = 'SELECT * FROM Directors ORDER BY director_name LIMIT ? OFFSET ?';
+    const directors = await query(sql, [pageSize, offset]);
+
+    res.status(200).json({ page, pageSize, results: directors });
   } catch (error) {
     console.error('Error fetching directors:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-// GET /directors/:director_name - Get director by name
+// GET /directors/:director_name - Get director by name with fuzzy search and pagination
 export const getDirectorByName = async (req: Request, res: Response): Promise<void> => {
   try {
     const directorName = req.params.director_name;
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
+    const pageSize = Math.min(parseInt(req.query.pageSize as string) || 10, 10);
+    const offset = (page - 1) * pageSize;
 
     if (!directorName) {
       res.status(400).json({ error: 'Invalid director name' });
       return;
     }
 
-    const sql = 'SELECT * FROM Directors WHERE LOWER(director_name) LIKE LOWER(?)';
-    const directors = await query(sql, [`%${directorName}%`]);
+    const sql = 'SELECT * FROM Directors WHERE LOWER(director_name) LIKE LOWER(?) LIMIT ? OFFSET ?';
+    const directors = await query(sql, [`%${directorName}%`, pageSize, offset]);
 
     if (directors.length === 0) {
       res.status(404).json({ message: 'Not found' });
       return;
     }
 
-    res.status(200).json(directors);
+    res.status(200).json({ page, pageSize, results: directors });
   } catch (error) {
     console.error('Error fetching director:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-// GET /directors/:director_id/movies - Get all movies for a director
+// GET /directors/:director_id/movies - Get all movies for a director with pagination
 export const getDirectorMovies = async (req: Request, res: Response): Promise<void> => {
   try {
     const directorId = parseInt(req.params.director_id);
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
+    const pageSize = Math.min(parseInt(req.query.pageSize as string) || 20, 100);
+    const offset = (page - 1) * pageSize;
 
     if (isNaN(directorId)) {
       res.status(400).json({ error: 'Invalid director ID' });
@@ -55,10 +65,11 @@ export const getDirectorMovies = async (req: Request, res: Response): Promise<vo
       INNER JOIN Movie_Directors md ON m.movie_id = md.movie_id
       WHERE md.director_id = ?
       ORDER BY m.release_date DESC
+      LIMIT ? OFFSET ?
     `;
-    const movies = await query(sql, [directorId]);
+    const movies = await query(sql, [directorId, pageSize, offset]);
 
-    res.status(200).json(movies);
+    res.status(200).json({ page, pageSize, results: movies });
   } catch (error) {
     console.error('Error fetching director movies:', error);
     res.status(500).json({ message: 'Internal server error' });
