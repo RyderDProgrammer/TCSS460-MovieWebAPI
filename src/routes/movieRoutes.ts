@@ -10,11 +10,12 @@ import {
 
 const router: Router = express.Router();
 
-// GET /movies - List movies
+// GET /movies - List movies (simple list)
 router.get('/', getAllMovies);
 
-// GET /movies/:title - Get movie by title
-router.get('/:title', getMovieByTitle);
+// GET /movies/title - Get movies by ID, title search, or all movies with details (A-Z)
+// Uses query parameter ?q= for search (numeric for ID, string for title, empty/omitted for all)
+router.get('/title', getMovieByTitle);
 
 // POST /movies - Create a new movie
 router.post('/', createMovie);

@@ -72,24 +72,19 @@ export const getMoviesByYear = (req: Request, res: Response) => {
 };
 
 /**
- * GET /movies/:title - Get detailed movie information by fuzzy title match with pagination
+ * GET /movies/title - Get detailed movie information by ID, fuzzy title match, or all movies (alphabetically) with pagination
+ * - If q param is numeric: search by movie_id (exact match)
+ * - If q param is string: fuzzy title search
+ * - If no q param: return all movies alphabetically ascending (A-Z)
  */
 export const getMovieByTitle = (req: Request, res: Response) => {
-  const title = req.params.title;
+  const param = (req.query.q as string) || null;
   const page = Math.max(parseInt(req.query.page as string) || 1, 1);
   const pageSize = Math.min(parseInt(req.query.pageSize as string) || 10, 10);
   const offset = (page - 1) * pageSize;
 
-  if (!title) return res.status(400).json({ error: 'Invalid title' });
-
-  const movieSql = `SELECT * FROM Movies WHERE LOWER(title) LIKE LOWER(?) LIMIT ? OFFSET ?`;
-
-  db.all(movieSql, [`%${title}%`, pageSize, offset], (err: Error | null, movies: Movie[]) => {
-    if (err) return res.status(500).json({ error: err.message });
-    if (!movies || movies.length === 0)
-      return res.status(404).json({ error: 'No movies found' });
-
-    // For each movie, load genres and cast
+  // Helper function to load genres and cast for movies
+  const loadMovieDetails = (movies: Movie[]): Promise<MovieWithDetails[]> => {
     const moviePromises = movies.map(movie => {
       return new Promise<MovieWithDetails>((resolve, reject) => {
         const genresSql = `
@@ -121,7 +116,52 @@ export const getMovieByTitle = (req: Request, res: Response) => {
       });
     });
 
-    Promise.all(moviePromises)
+    return Promise.all(moviePromises);
+  };
+
+  // Case 1: No parameter provided - return all movies alphabetically ascending
+  if (!param) {
+    const movieSql = `SELECT * FROM Movies ORDER BY title ASC LIMIT ? OFFSET ?`;
+
+    db.all(movieSql, [pageSize, offset], (err: Error | null, movies: Movie[]) => {
+      if (err) return res.status(500).json({ error: err.message });
+      if (!movies || movies.length === 0)
+        return res.status(404).json({ error: 'No movies found' });
+
+      loadMovieDetails(movies)
+        .then(results => res.json({ page, pageSize, results }))
+        .catch(error => res.status(500).json({ error: error.message }));
+    });
+    return;
+  }
+
+  // Case 2: Parameter is numeric - search by movie_id (exact match)
+  const isNumeric = /^\d+$/.test(param);
+
+  if (isNumeric) {
+    const movieId = parseInt(param, 10);
+    const movieSql = `SELECT * FROM Movies WHERE movie_id = ?`;
+
+    db.get(movieSql, [movieId], (err: Error | null, movie: Movie) => {
+      if (err) return res.status(500).json({ error: err.message });
+      if (!movie) return res.status(404).json({ error: 'Movie not found' });
+
+      loadMovieDetails([movie])
+        .then(results => res.json({ page: 1, pageSize: 1, results }))
+        .catch(error => res.status(500).json({ error: error.message }));
+    });
+    return;
+  }
+
+  // Case 3: Parameter is string - fuzzy title search with pagination
+  const movieSql = `SELECT * FROM Movies WHERE LOWER(title) LIKE LOWER(?) LIMIT ? OFFSET ?`;
+
+  db.all(movieSql, [`%${param}%`, pageSize, offset], (err: Error | null, movies: Movie[]) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (!movies || movies.length === 0)
+      return res.status(404).json({ error: 'No movies found' });
+
+    loadMovieDetails(movies)
       .then(results => res.json({ page, pageSize, results }))
       .catch(error => res.status(500).json({ error: error.message }));
   });
